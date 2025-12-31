@@ -1,0 +1,112 @@
+{
+  "akara": {
+    "display_name": "Akara (Bean Cake)",
+    "ethnicity": "Yoruba / Nigeria-wide",
+    "ingredients": ["black-eyed beans", "onions", "pepper", "salt", "vegetable oil"],
+    "calories": 350,
+    "carbs": 30,
+    "protein": 12,
+    "fat": 20,
+    "diet_type": "Vegan",
+    "substitute": "Baked bean cakes"
+  },
+  "banga_soup": {
+    "display_name": "Banga Soup",
+    "ethnicity": "Niger Delta / Urhobo",
+    "ingredients": ["palm fruit extract", "beef", "stockfish", "crayfish", "seasoning"],
+    "calories": 500,
+    "carbs": 10,
+    "protein": 25,
+    "fat": 40,
+    "diet_type": "Non-vegan",
+    "substitute": "Vegetable oil okra soup"
+  },
+  "egusi_soup": {
+    "display_name": "Egusi Soup",
+    "ethnicity": "Igbo / Yoruba / Pan-Nigerian",
+    "ingredients": ["melon seeds", "vegetable oil", "leafy greens", "meat", "crayfish"],
+    "calories": 600,
+    "carbs": 12,
+    "protein": 28,
+    "fat": 45,
+    "diet_type": "Non-vegan",
+    "substitute": "Pumpkin soup"
+  },
+  "jollof_rice": {
+    "display_name": "Jollof Rice",
+    "ethnicity": "West African / Nigeria",
+    "ingredients": ["rice", "tomato paste", "vegetable oil", "onion", "pepper"],
+    "calories": 450,
+    "carbs": 65,
+    "protein": 8,
+    "fat": 15,
+    "diet_type": "Vegan",
+    "substitute": "Brown rice with grilled veggies"
+  },
+  "moi_moi": {
+    "display_name": "Moi Moi",
+    "ethnicity": "Yoruba / Nigeria-wide",
+    "ingredients": ["beans", "pepper", "onions", "oil", "egg (optional)"],
+    "calories": 300,
+    "carbs": 25,
+    "protein": 10,
+    "fat": 12,
+    "diet_type": "Vegan/Non-vegan",
+    "substitute": "Steamed lentil cakes"
+  },
+  "nkwobi": {
+    "display_name": "Nkwobi",
+    "ethnicity": "Igbo",
+    "ingredients": ["cow foot", "palm oil", "utazi leaves", "seasoning"],
+    "calories": 520,
+    "carbs": 5,
+    "protein": 35,
+    "fat": 38,
+    "diet_type": "Non-vegan",
+    "substitute": "Lean meat pepper soup"
+  },
+  "okpa": {
+    "display_name": "Okpa (Bambara Cake)",
+    "ethnicity": "Enugu / Southeastern Nigeria",
+    "ingredients": ["bambara nut flour", "pepper", "oil", "salt"],
+    "calories": 360,
+    "carbs": 40,
+    "protein": 15,
+    "fat": 18,
+    "diet_type": "Vegan",
+    "substitute": "Steamed mung bean cake"
+  },
+  "suya": {
+    "display_name": "Suya",
+    "ethnicity": "Hausa / Northern Nigeria",
+    "ingredients": ["beef", "yaji spice", "oil", "salt"],
+    "calories": 480,
+    "carbs": 6,
+    "protein": 35,
+    "fat": 30,
+    "diet_type": "Non-vegan",
+    "substitute": "Grilled chicken breast with herbs"
+  },
+  "tuwo": {
+    "display_name": "Tuwo Shinkafa",
+    "ethnicity": "Hausa / Northern Nigeria",
+    "ingredients": ["rice", "water", "salt"],
+    "calories": 320,
+    "carbs": 70,
+    "protein": 5,
+    "fat": 1,
+    "diet_type": "Vegan",
+    "substitute": "Millet flour tuwo"
+  },
+  "yam_porridge": {
+    "display_name": "Yam Porridge",
+    "ethnicity": "Yoruba / Nigeria-wide",
+    "ingredients": ["yam", "palm oil", "leafy greens", "pepper", "onion"],
+    "calories": 400,
+    "carbs": 55,
+    "protein": 8,
+    "fat": 20,
+    "diet_type": "Vegan",
+    "substitute": "Boiled yam with vegetable sauce"
+  }
+}
