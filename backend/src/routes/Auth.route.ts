@@ -4,7 +4,7 @@ import {
   login,
   logout,
   refreshAccessToken,
-  checkAuth,
+  // checkAuth,
 } from "../controllers/Auth.controller";
 import { loginValidator, registerValidator } from "../utils/validator";
 // import { authenticate, authorize } from "../midddleware/auth.middleware";
@@ -17,6 +17,6 @@ AuthRouter.post("/logout", logout);
 
 AuthRouter.post("/refresh", refreshAccessToken);
 
-AuthRouter.get("/check-auth", checkAuth);
+// AuthRouter.get("/check-auth", checkAuth);
 
 export default AuthRouter;
