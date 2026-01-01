@@ -20,6 +20,13 @@ app.use(cookieParser());
 //   })
 // );
 
+app.use(
+  cors({
+    origin: ["https://food-snap-frontend.vercel.app", "http://localhost:5173"], // Vite default
+    credentials: true,
+  })
+);
+
 // app.use(
 //   cors({
 //     // origin: process.env.FRONTEND_URL || "http://localhost:5173",
@@ -30,19 +37,19 @@ app.use(cookieParser());
 //   })
 // );
 
-app.use(
-  cors({
-    origin: true, // 🔥 reflect request origin
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+// app.use(
+//   cors({
+//     origin: true, // 🔥 reflect request origin
+//     credentials: true,
+//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+//     allowedHeaders: ["Content-Type", "Authorization"],
+//   })
+// );
 
-app.options("*", cors());
+// app.options("*", cors());
 
 // IMPORTANT for preflight
-app.options("*", cors());
+// app.options("*", cors());
 
 
 app.use("/api/v1/food", foodRoutes);
