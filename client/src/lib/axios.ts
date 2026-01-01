@@ -2,7 +2,7 @@ import axios from "axios";
 // import { tokenStore } from "./authToken";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_KEY || "https://food-snap-backend.vercel.app/api/v1",
+  baseURL: import.meta.env.VITE_API_KEY,
   withCredentials: true,
 });
 

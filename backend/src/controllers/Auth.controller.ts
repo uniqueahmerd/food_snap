@@ -152,12 +152,19 @@ export const login = async (req: Request, res: Response) => {
     //   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     // });
 
+    // res.cookie("refreshToken", refreshToken, {
+    //   httpOnly: true,
+    //   secure: true, // true in production
+    //   sameSite: "none",
+    //   path: "/refresh",
+    //   maxAge: 7* 24 * 60 * 60 * 1000, // 7 days
+    // });
+
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: true, // true in production
-      sameSite: "none",
-      path: "/refresh",
-      maxAge: 7* 24 * 60 * 60 * 1000, // 7 days
+      secure: true,      // REQUIRED on Vercel
+      sameSite: "none",  // REQUIRED for cross-site cookies
+      path: "/",
     });
 
     res.status(201).json({
