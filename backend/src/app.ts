@@ -23,7 +23,9 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: ["https://food-snap-frontend.vercel.app", "http://localhost:5173"], // Vite default
-    credentials: true,
+   credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
