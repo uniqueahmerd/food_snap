@@ -154,7 +154,7 @@ export const login = async (req: Request, res: Response) => {
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: false, // true in production
+      secure: true, // true in production
       sameSite: "none",
       path: "/refresh",
       maxAge: 7* 24 * 60 * 60 * 1000, // 7 days
@@ -224,58 +224,58 @@ export const refreshAccessToken = async (req: Request, res: Response) => {
   }
 };
 
-export const checkAuth = async (req: Request, res: Response) => {
-  const token = req.cookies.refreshToken;
+// export const checkAuth = async (req: Request, res: Response) => {
+//   const token = req.cookies.refreshToken;
 
-  if (!token) {
-    return res.status(401).json({ message: "No refresh token" });
-  }
+//   if (!token) {
+//     return res.status(401).json({ message: "No refresh token" });
+//   }
 
-  try {
-    const payload = jwt.verify(
-      token,
-      process.env.JWT_REFRESH_SECRET as string
-    ) as {
-      userId: string;
-      role?: string;
-    };
+//   try {
+//     const payload = jwt.verify(
+//       token,
+//       process.env.JWT_REFRESH_SECRET as string
+//     ) as {
+//       userId: string;
+//       role?: string;
+//     };
 
-    // Ensure token exists in DB
-    const tokenRow = await pool.query(
-      "SELECT * FROM refresh_tokens WHERE token = $1",
-      [token]
-    );
-    if (tokenRow.rows.length === 0) {
-      return res.status(403).json({ message: "Invalid refresh token" });
-    }
+//     // Ensure token exists in DB
+//     const tokenRow = await pool.query(
+//       "SELECT * FROM refresh_tokens WHERE token = $1",
+//       [token]
+//     );
+//     if (tokenRow.rows.length === 0) {
+//       return res.status(403).json({ message: "Invalid refresh token" });
+//     }
 
-    // Fetch user
-    const userRes = await pool.query(
-      "SELECT id, name, email, role FROM users WHERE id = $1",
-      [payload.userId]
-    );
+//     // Fetch user
+//     const userRes = await pool.query(
+//       "SELECT id, name, email, role FROM users WHERE id = $1",
+//       [payload.userId]
+//     );
 
-    const user = userRes.rows[0];
-    if (!user) return res.status(404).json({ message: "User not found" });
+//     const user = userRes.rows[0];
+//     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Issue a fresh short-lived access token (keeps client authenticated)
-    const accessToken = generateAccessToken(user.id, user.role);
-    res.cookie("token", accessToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "none",
-      path: "/",
-      maxAge: 3 * 60 * 1000, // 3 minutes
-    });
+//     // Issue a fresh short-lived access token (keeps client authenticated)
+//     const accessToken = generateAccessToken(user.id, user.role);
+//     res.cookie("token", accessToken, {
+//       httpOnly: true,
+//       secure: false,
+//       sameSite: "none",
+//       path: "/",
+//       maxAge: 3 * 60 * 1000, // 3 minutes
+//     });
 
-    return res.json({ user });
-  } catch (err: any) {
-    console.error("checkAuth error:", err);
-    return res
-      .status(403)
-      .json({ message: "Refresh token invalid or expired" });
-  }
-};
+//     return res.json({ user });
+//   } catch (err: any) {
+//     console.error("checkAuth error:", err);
+//     return res
+//       .status(403)
+//       .json({ message: "Refresh token invalid or expired" });
+//   }
+// };
 
 // export const checkAuth = async (req: Request, res: Response) => {
 //   try {

@@ -20,15 +20,26 @@ app.use(cookieParser());
 //   })
 // );
 
+// app.use(
+//   cors({
+//     // origin: process.env.FRONTEND_URL || "http://localhost:5173",
+//     origin: '*',
+//     credentials: true,
+//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+//     allowedHeaders: ["Content-Type", "Authorization"],
+//   })
+// );
+
 app.use(
   cors({
-    // origin: process.env.FRONTEND_URL || "http://localhost:5173",
-    origin: '*',
+    origin: true, // 🔥 reflect request origin
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+app.options("*", cors());
 
 // IMPORTANT for preflight
 app.options("*", cors());
