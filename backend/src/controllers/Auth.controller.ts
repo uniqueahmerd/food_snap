@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import { pool } from "../config/db";
-import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
-import { validationResult } from "express-validator";
 import jwt from "jsonwebtoken";
+import { pool } from "../config/db.js";
+import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
+import { validationResult } from "express-validator";
 
 export const register = async (req: Request, res: Response) => {
   // Validate inputs

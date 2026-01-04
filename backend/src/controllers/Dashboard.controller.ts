@@ -1,12 +1,12 @@
 import { Response } from "express";
-import { AuthRequest } from "../midddleware/auth.middleware";
+import { AuthRequest } from "../midddleware/auth.middleware.js";
 import {
   getSummary,
   getRecentScans,
   getWeeklyTrend,
   getNutritionBreakdown,
   getHealthRisk,
-} from "../services/Dashboard.service";
+} from "../services/Dashboard.service.js";
 
 export const DashboardController = {
   async summary(req: AuthRequest, res: Response) {
