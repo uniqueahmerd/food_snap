@@ -3,9 +3,9 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import dotenv from "dotenv";
-import foodRoutes from "./routes/food.routes";
-import AuthRouter from "./routes/Auth.route";
-import DashboardRouter from "./routes/Dashboard.routes";
+import foodRoutes from "./routes/food.routes.js";
+import AuthRouter from "./routes/Auth.route.js";
+import DashboardRouter from "./routes/Dashboard.routes.js";
 
 dotenv.config();
 const app = express();

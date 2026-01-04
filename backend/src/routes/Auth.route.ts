@@ -5,8 +5,8 @@ import {
   logout,
   refreshAccessToken,
   // checkAuth,
-} from "../controllers/Auth.controller";
-import { loginValidator, registerValidator } from "../utils/validator";
+} from "../controllers/Auth.controller.js";
+import { loginValidator, registerValidator } from "../utils/validator.js";
 // import { authenticate, authorize } from "../midddleware/auth.middleware";
 
 const AuthRouter = Router();

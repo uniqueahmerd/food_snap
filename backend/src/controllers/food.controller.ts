@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { pool } from "../config/db";
-import { analyzeWithAI } from "../services/ai.service";
+import { pool } from "../config/db.js";
+import { analyzeWithAI } from "../services/ai.service.js";
 import { v4 as uuidv4 } from "uuid";
 // import { fetchNutrition } from "../services/nutrition.service";
 
