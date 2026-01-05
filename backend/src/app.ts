@@ -12,8 +12,8 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["https://food-snap-frontend.vercel.app", "http://localhost:5173"], // Vite default
-   credentials: true,
+    origin: process.env.FRONTEND_URL || "http://localhost:5173", // Vite default
+    credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })

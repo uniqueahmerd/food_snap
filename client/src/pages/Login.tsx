@@ -63,9 +63,7 @@ const Login = () => {
     } catch (err: any) {
       console.error(err);
       const msg =
-        err?.response?.data?.message ||
-        err?.message ||
-        "An unexpected error occurred";
+        err?.response?.message || "An unexpected error occurred";
       setSubmitError(msg);
       setSubmitMessage(null);
       setMessageType("error");
@@ -216,9 +214,7 @@ const Login = () => {
                       {messageType === "success" ? "Success" : "Error"}
                     </div>
                     <div className="text-sm mt-1">
-                      {submitMessage ||
-                        submitError ||
-                        (Error as unknown as string)}
+                      {submitMessage || submitError}
                     </div>
                   </div>
                 </div>
