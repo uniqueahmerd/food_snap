@@ -18,11 +18,14 @@ const app = express();
 //     allowedHeaders: ["Content-Type", "Authorization"],
 //   })
 // );
-const url = "https://food-snap-frontend.vercel.app/"
+
 app.use(
   cors({
-    origin: url || "http://localhost:5173" , // Vite default
+    // origin: url || "http://localhost:5173" , // Vite default
+    origin: "https://food-snap-backend.vercel.app/",
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
