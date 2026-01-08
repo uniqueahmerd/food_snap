@@ -24,35 +24,35 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   // Setup interceptors
   useEffect(() => {
     setupInterceptors();
 
-    const initializeAuth = async () => {
-      try {
-        const res = await api.post("/auth/refresh"); // refresh token from cookie
-        const token = res.data.accessToken;
-        tokenStore.set(token);
+      // const initializeAuth = async () => {
+      //   try {
+      //     const res = await api.post("/auth/refresh"); // refresh token from cookie
+      //     const token = res.data.accessToken;
+      //     tokenStore.set(token);
 
-        const userRes = await api.get("/auth/me"); // fetch user info
-        setUser(userRes.data);
-      } catch {
-        tokenStore.set(null);
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
+      //     const userRes = await api.get("/auth/me"); // fetch user info
+      //     setUser(userRes.data);
+      //   } catch {
+      //     tokenStore.set(null);
+      //     setUser(null);
+      //   } finally {
+      //     setLoading(false);
+      //   }
+      // };
 
-    initializeAuth();
-  }, []);
+      // initializeAuth();
+    }, []);
 
   const register = async (name: string, email: string, password: string) => {
   setLoading(true);
   try {
-    const { data } = await api.post('/auth/register', { name, email, password }, { withCredentials: true });
+    const { data } = await api.post('/auth/register', { name, email, password}, { withCredentials: true });
     setUser(data.user); // assume backend returns { user, token? }
   } catch (err: any) {
     console.error('Registration failed:', err.response?.data?.message || err.message);
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (email: string, password: string) => {
     setLoading(true);
     try {
-      const res = await api.post("/auth/login", { email, password_hash: password });
+      const res = await api.post("/auth/login", { email, password }, {});
       const token = res.data.accessToken;
       tokenStore.set(token);
 

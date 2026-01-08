@@ -38,10 +38,6 @@ export const authenticate = (
       userId: decoded.userId,
       role: decoded.role,
      };
-     console.log("decoded info", decoded);
-     
-     console.log(req.user.userId);
-     
 
      next()
 

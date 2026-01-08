@@ -27,26 +27,20 @@ interface AIResponse {
 export const analyzeWithAI = async (imageBase64: string, conditions: string[]) => {
 
   const response = await axios.post<AIResponse>(
-    // In production, this URL should come from environment variables`
     process.env.AI_URL as string,
     { image: imageBase64, conditions },
     { timeout: 30000 } // 30-second timeout for the AI model
   );
 
   const aiResponse = response.data;
-  const advice = String(aiResponse.advice);
-
-  console.log("AI Resposponse", aiResponse);
+  console.log("ai response", aiResponse);
   
-
-
+  const advice = String(aiResponse.advice);
 
   // Handle explicit errors returned from the AI service
   if (aiResponse.error) {
     throw new Error(`AI Service Error: ${aiResponse.error}`);
   }
-
-  
 
   // Validate the structure of the successful response
   if (

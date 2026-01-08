@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 export const analyzeFood = async (req: Request, res: Response) => {
   try {
     const { image, healthCondition } = req.body;
-
+    
     if (!image) {
       return res.status(400).json({ message: "Image is required" });
     }
@@ -21,6 +21,9 @@ export const analyzeFood = async (req: Request, res: Response) => {
       image,
       healthCondition ? [healthCondition] : []
     );
+
+    console.log("ai result", aiResult);
+    
 
     const { food, confidence, nutrients, predictions, advice, substitute } =
       aiResult;

@@ -28,7 +28,7 @@ export const setupInterceptors = () => {
       if (
         error.response?.status === 401 &&
         !originalRequest._retry &&
-        !originalRequest.url.includes("/auth/refresh")
+        !originalRequest.url.includes("/auth/refresh", { withCredentials: true })
       ) {
         if (isRefreshing) {
           return new Promise((resolve, reject) => {
@@ -46,7 +46,7 @@ export const setupInterceptors = () => {
         isRefreshing = true;
 
         try {
-          const res = await api.post("/auth/refresh"); // uses HTTP-only cookie
+          const res = await api.post("/auth/refresh", { withCredentials: true }); // uses HTTP-only cookie
           const newToken = res.data.accessToken;
 
           tokenStore.set(newToken);

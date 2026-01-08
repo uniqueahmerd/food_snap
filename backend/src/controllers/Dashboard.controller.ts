@@ -14,7 +14,6 @@ export const DashboardController = {
         return res.status(401).json({ message: "Unauthorized" });
       }
       const userId = req.user!.userId;
-    console.log("id", userId);
 
     const data = await getSummary(userId);
     return res.json(data);
@@ -26,7 +25,6 @@ export const DashboardController = {
       return res.status(401).json({ message: "Unauthorized" });
     }
     const data = await getRecentScans(userId);
-    console.log(data);
 
     return res.json(data);
   },

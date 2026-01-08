@@ -1,10 +1,8 @@
-DROP TABLE IF EXISTS refresh_tokens CASCADE;
-
 CREATE TABLE users (
    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
    name TEXT NOT NULL,
    email TEXT NOT NULL UNIQUE,
-   password_hash TEXT NOT NULL,
+   password TEXT NOT NULL,
   --  health_focus TEXT NOT NULL,
    role TEXT NOT NULL DEFAULT 'user',
    created_at TIMESTAMP DEFAULT NOW()
@@ -24,22 +22,13 @@ CREATE TABLE refresh_tokens (
     ON DELETE CASCADE
 );
 
-ALTER TABLE food_scan ALTER COLUMN calories DROP NOT NULL;
-
-
-
-
-
-
-DROP TABLE IF EXISTS food_scan;
-
 CREATE TABLE food_scan (
   id UUID PRIMARY KEY,
   user_id UUID NOT NULL,
   dish_name TEXT NOT NULL,
   nutrients JSONB NOT NULL,
   calories INT NOT NULL,
-  confidence FLOAT NOT NULL,              -- 🔥 FLOAT, NOT INTEGER
+  confidence FLOAT NOT NULL,          
   health_assesment TEXT,
   recommendations TEXT,
   health_condition TEXT,
@@ -53,7 +42,7 @@ CREATE TABLE food_scan (
     ON DELETE CASCADE
 );
 
-DROP TABLE IF EXISTS food_analysis CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
 
 CREATE TABLE food_analysis(
     id UUID PRIMARY KEY,

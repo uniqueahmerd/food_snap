@@ -34,7 +34,7 @@ const Login = () => {
 
     try {
       if (isSignup) {
-        await register(email, password, name);
+        await register(name, email, password);
         setSubmitError(null);
         setSubmitMessage("Registration successful");
         setMessageType("success");
@@ -63,7 +63,8 @@ const Login = () => {
     } catch (err: any) {
       console.error(err);
       const msg =
-        err?.response?.message || "An unexpected error occurred";
+        err?.response?.data.error || "An unexpected error occurred";
+   
       setSubmitError(msg);
       setSubmitMessage(null);
       setMessageType("error");
