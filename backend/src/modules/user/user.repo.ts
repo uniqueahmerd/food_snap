@@ -11,7 +11,7 @@ export type UserRow = {
 
 export class UserRepositry {
     async findByEmail(email: string): Promise<UserRow | null> {
-       const result = await pool.query("SELECT * FROM users WHERE email = $1",
+       const result = await pool.query("SELECT * FROM users WHERE email = $1" ,
        [ email]);
 
        return result.rows[0] ?? null;
@@ -38,16 +38,16 @@ export class UserRepositry {
           return result.rows[0] ?? null;
     };
     
-    async checkingTokenInDb(refreshToken: string) {
+    async checkingTokenInDb(token: string) {
         const result = await pool.query("SELECT * FROM refresh_tokens WHERE token = $1 AND revoked = false AND expires_at > NOW()",
-      [refreshToken]);
+      [token]);
 
       return result.rows[0] ?? null;
     };
 
-    async rotateToken(refreshToken: string) {
+    async rotateToken(token: string) {
         const result = await pool.query("UPDATE refresh_tokens SET revoked = true WHERE token = $1",
-      [refreshToken])
+      [token])
 
       return result.rows[0] ?? null
     };

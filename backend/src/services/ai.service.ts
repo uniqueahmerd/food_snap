@@ -20,6 +20,8 @@ interface AIResponse {
   nutrients: AINutrients;
   substitute: string;
   advice: string;
+  risk_level?: string;
+  risk_score?: number;
   error?: string; // To handle error cases from the AI service
 }
 
@@ -33,7 +35,6 @@ export const analyzeWithAI = async (imageBase64: string, conditions: string[]) =
   );
 
   const aiResponse = response.data;
-  console.log("ai response", aiResponse);
   
   const advice = String(aiResponse.advice);
 
@@ -41,6 +42,7 @@ export const analyzeWithAI = async (imageBase64: string, conditions: string[]) =
   if (aiResponse.error) {
     throw new Error(`AI Service Error: ${aiResponse.error}`);
   }
+
 
   // Validate the structure of the successful response
   if (
@@ -50,7 +52,7 @@ export const analyzeWithAI = async (imageBase64: string, conditions: string[]) =
     !Array.isArray(aiResponse.predictions) ||
     typeof aiResponse.nutrients !== 'object' ||
     typeof advice !== "string" ||
-    typeof aiResponse.substitute !== "string"
+    typeof aiResponse.substitute !== "string" 
   ) {
     throw new Error("Invalid or incomplete AI response structure");
   }
@@ -61,6 +63,6 @@ export const analyzeWithAI = async (imageBase64: string, conditions: string[]) =
     predictions: aiResponse.predictions,
     nutrients: aiResponse.nutrients,
     advice: advice,
-    substitute: aiResponse.substitute
+    substitute: aiResponse.substitute,
   };
 };

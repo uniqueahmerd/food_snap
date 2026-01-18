@@ -130,12 +130,13 @@ def analyze_food(data: ImagePayload):
         "fat": info['fat'],
     }
     
-
     return {
     "food": food_name_for_response,
     "confidence": round(confidence, 3),
     "predictions": predictions,
     "nutrients": nutrients,
     "advice": advice, 
-    "substitute": substitute
+    "substitute": substitute,
+    "risk_level": risk_level,
+    "risk_score": risk_score,
 }

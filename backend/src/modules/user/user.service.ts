@@ -20,11 +20,11 @@ export class UserService {
       if (!name || !email || !password) throw new Error ("All fields are required");
          
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email))  throw new Error ("Invalid email")
+      if (!emailRegex.test(email))  throw new Error ("Invalid email format please check the email and ty again")
       
       // checking the user existance
       const user = await this.repo.findByEmail(email)
-      if (user?.email) throw new Error ("Email already exists in the system")
+      if (user?.email) throw new Error ("Email already exists in the system please check the email and try again")
 
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -48,12 +48,12 @@ export class UserService {
       return { newUser, accessToken, refreshToken };
 
     } catch (err: any) {
+      console.error("REGISTER ERROR 👉", err); 
        throw new Error (err.message)
          }
   };
 
   async login(email: string, password: string) {
-
   try {
     //basic validation
     if (!email || !password) throw new Error("All fields are required")
@@ -70,6 +70,8 @@ export class UserService {
       password,
       user.password
     );
+    
+     
     if (!validPassword) throw new Error ("Invalid password")
 
     // Generate tokens
@@ -81,6 +83,7 @@ export class UserService {
     // Store refresh token
     await this.repo.storingRefreshToken(user.id, refreshToken)
 
+    
     return { user, accessToken, refreshToken };
      
   } catch (err: any) {
@@ -93,7 +96,7 @@ export class UserService {
     // If token exists, delete it from DB
     if (refresh) {
       const refreshToken = jwt.decode(refresh) as any;
-       
+         
       if (refreshToken) {
         await this.repo.updatingRevoked(refreshToken)
       }; 

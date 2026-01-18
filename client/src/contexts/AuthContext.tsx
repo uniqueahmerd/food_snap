@@ -66,12 +66,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (email: string, password: string) => {
     setLoading(true);
     try {
-      const res = await api.post("/auth/login", { email, password }, {});
+      const res = await api.post("/auth/login", { email, password }, {withCredentials: true});
       const token = res.data.accessToken;
       tokenStore.set(token);
 
-      
       setUser(res.data.user);
+      
     } catch (err) {
       tokenStore.set(null);
       setUser(null);
@@ -93,8 +93,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const refresh = async () => {
   setLoading(true);
   try {
-    const { data } = await api.post('/auth/refresh', {}, { withCredentials: true });
-    setUser(data.user); // assuming your backend returns user in data.user
+    const {data}  = await api.post('/auth/refresh', {}, { withCredentials: true });
+    setUser(data.user); // assuming your backend returns user in data.user 
   } catch (err) {
     setUser(null);
   } finally {

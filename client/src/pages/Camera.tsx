@@ -19,7 +19,7 @@ const Camera = () => {
   const [analyzing, setAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<NutritionAnalysis | null>(null);
   const [cameraActive, setCameraActive] = useState(false);
-  const [healthCondition, setHealthCondition] = useState<HealthCondition>(
+  const [healthCondition, setHealthCondition] = useState<HealthCondition | null>(
   );
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -74,17 +74,17 @@ const Camera = () => {
       // ✅ Remove base64 prefix
       const cleanBase64 = imageData.replace(/^data:image\/\w+;base64,/, "");
 
-      const response = await api.post(`/food/analyze`,
+      const response = await api.post(
+        `/food/analyze`,
         {
           image: cleanBase64,
           healthCondition, // string | string[]
         },
-        { timeout: 60000 }, 
+        { timeout: 60000 }
       );
+      console.log("response", response.data);
 
-      const data = response.data;
-
-      
+      const data = response.data.data;
 
       // 🔐 SAFETY FALLBACKS
       const dishName = data.food ?? "unknown_food";
@@ -407,7 +407,7 @@ const Camera = () => {
                     Health Assessment
                   </h3>
                   <TTSButton
-                    text={`Health assessment for ${healthCondition.replace(
+                    text={`Health assessment for ${healthCondition?.replace(
                       "_",
                       " "
                     )} condition: ${analysis.healthFlags
@@ -420,7 +420,7 @@ const Camera = () => {
                   <p className="text-sm text-gray-600">
                     Analysis for:{" "}
                     <span className="font-medium capitalize">
-                      {healthCondition.replace("_", " ")}
+                      {healthCondition?.replace("_", " ")}
                     </span>
                   </p>
                 </div>

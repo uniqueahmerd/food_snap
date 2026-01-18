@@ -21,12 +21,14 @@ export const register = async (req: Request, res: Response) => {
       email,
       password
     );
+    
+    
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-      path: "/auth/refresh",
+      path: "/api/auth/v1/refresh",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -39,7 +41,7 @@ export const register = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      message: "Registration failed",
+      message: "Registration failed please try again",
       error: error.message,
     });
   }
@@ -58,18 +60,15 @@ export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     const {user, accessToken, refreshToken } = await service.login(email, password);
     
-    console.log("refreshToken", req.cookies?.refreshToken);
-    console.log("cookies", req.cookies);
-    
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-      path: "/auth/refresh",
+      path: "/api/auth/v1/refresh",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-
+     
     res.status(201).json({
       success: true,
       message: "User registered successfully",
@@ -79,7 +78,7 @@ export const login = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      message: "Login failed",
+      message: "Login failed please try again",
       error: error.message,
     });
   }
@@ -87,6 +86,7 @@ export const login = async (req: Request, res: Response) => {
 
 export const logout = async (req: Request, res: Response) => {
   const refresh = req.cookies.refreshToken;
+  
   try {
     await service.logout(refresh);
 

@@ -22,14 +22,11 @@ export const analyzeFood = async (req: Request, res: Response) => {
       healthCondition ? [healthCondition] : []
     );
 
-    console.log("ai result", aiResult);
-    
 
     const { food, confidence, nutrients, predictions, advice, substitute } =
       aiResult;
 
-      const scanId = uuidv4();
-
+    const scanId = uuidv4();
     const userId = req.user.userId;
     // 2️⃣ Save to DB (optional, safe)
 
@@ -40,25 +37,28 @@ export const analyzeFood = async (req: Request, res: Response) => {
         user_id,
         dish_name,
         nutrients,
+        calories,
         confidence,
         health_assesment,
         recommendations,
         health_condition,
-        scanned_at
+        scanned_at,
+        created_at
       )
-      VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7, $8, NOW())
+      VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7, $8,$9, NOW(), NOW() )
       `,
       [
         scanId,
         userId,
         food,
         JSON.stringify(nutrients),
+        nutrients.calories,
         confidence,
         advice,
         substitute,
         healthCondition ?? null,
       ]
-    );
+    ); 
 
     // 3️⃣ SEND FULL AI RESPONSE TO FRONTEND
     return res.json({
@@ -83,11 +83,11 @@ export const analyzeFood = async (req: Request, res: Response) => {
   }
 };
 
-export const getHistory = async (_req: Request, res: Response) => {
-  const result = await pool.query(
-    `SELECT * FROM food_analysis ORDER BY created_at DESC LIMIT 20`
-  );
-  res.json(result.rows);
-};
+// export const getHistory = async (_req: Request, res: Response) => {
+//   const result = await pool.query(
+//     `SELECT * FROM food_analysis ORDER BY created_at DESC LIMIT 20`
+//   );
+//   res.json(result.rows);
+// };
 
 

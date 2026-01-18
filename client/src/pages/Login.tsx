@@ -12,12 +12,12 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitMessage, setSubmitMessage] = useState<string | null>(null);
-  const [messageType, setMessageType] = useState<"success" | "error" | null>(
-    null
-  );
-  const { login, register, loading } = useAuth();
+  const [messageType, setMessageType] = useState<"success" | "error" | null>(null);
+
+  const { login, register, loading, user } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,17 +42,19 @@ const Login = () => {
         setEmail("");
         setPassword("");
         setName("");
+        // user?.role === "admin" ? navigate("/admin") : navigate("/dashboard")
         // Give user a moment to read the message, then navigate to login
         setTimeout(() => {
           setSubmitMessage(null);
           setMessageType(null);
-          navigate("/login");
         }, 1400);
       } else {
         await login(email, password);
         setSubmitError(null);
         setSubmitMessage("Login successful");
         setMessageType("success");
+        console.log("user", user);
+        
         // Show success briefly then navigate to dashboard
         setTimeout(() => {
           setSubmitMessage(null);
@@ -63,7 +65,7 @@ const Login = () => {
     } catch (err: any) {
       console.error(err);
       const msg =
-        err?.response?.data.error || "An unexpected error occurred";
+        err?.response?.data.user.message || "An unexpected error occurred";
    
       setSubmitError(msg);
       setSubmitMessage(null);
