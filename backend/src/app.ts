@@ -12,23 +12,28 @@ dotenv.config();
 const app = express();
 
 
-app.use(
-  cors({
-    // origin: process.env.FRONTEND_URL || "http://localhost:5173",
-    origin: "http://localhost:5173" ,
-    // origin: "https://food-snap-frontend.vercel.app" ,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "X-Requested-With",
-      "Accept",
-    ],
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
-  })
-);
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://food-snap-frontend.vercel.app",
+];
+
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true); // allow server-to-server
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(null, false);
+  },
+  credentials: true, // REQUIRED for cookies
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 
 
