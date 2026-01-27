@@ -13,68 +13,36 @@ dotenv.config();
 
 const app = express();
 
-// Get allowed origins from environment variable or use defaults based on environment
-let allowedOrigins: string[] = [];
-
-if (process.env.NODE_ENV === "production") {
-  // In production, be restrictive but include common Vercel domains
-  allowedOrigins = [
-    "https://food-snap-frontend.vercel.app",
-    "https://*.vercel.app", // Allow any Vercel deployment
-  ];
-  
-  // Add specific frontend URL if set
-  if (process.env.FRONTEND_URL && !allowedOrigins.includes(process.env.FRONTEND_URL)) {
-    allowedOrigins.push(process.env.FRONTEND_URL);
-  }
-  
-  // Add any additional origins from ALLOWED_ORIGINS env var
-  if (process.env.ALLOWED_ORIGINS) {
-    const additionalOrigins = process.env.ALLOWED_ORIGINS.split(",").map(o => o.trim());
-    allowedOrigins.push(...additionalOrigins);
-  }
-} else {
-  // In development, allow localhost and any from ALLOWED_ORIGINS
-  allowedOrigins = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:3000",
-  ];
-  
-  if (process.env.ALLOWED_ORIGINS) {
-    const additionalOrigins = process.env.ALLOWED_ORIGINS.split(",").map(o => o.trim());
-    allowedOrigins.push(...additionalOrigins);
-  }
-}
-
-console.log("🔓 Allowed CORS Origins:", allowedOrigins);
 console.log("📌 Running in:", process.env.NODE_ENV || "development");
+console.log("🔗 Frontend URL env:", process.env.FRONTEND_URL);
+console.log("🔗 Backend URL env:", process.env.BACKEND_URL);
 
 const corsOptions: cors.CorsOptions = {
-  origin: (origin, callback) => {
-    if (!origin) {
-      // Allow requests with no origin
+  origin: function (origin, callback) {
+    console.log(`📨 Incoming request from origin: ${origin || "NO ORIGIN"}`);
+
+    // Always allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    // Allow any Vercel app
+    if (origin.includes("vercel.app")) {
+      console.log(`✅ Allowed Vercel origin: ${origin}`);
       return callback(null, true);
     }
 
-    // Check exact match
-    if (allowedOrigins.includes(origin)) {
+    // Allow localhost in development
+    if (origin.includes("localhost") || origin.includes("127.0.0.1")) {
+      console.log(`✅ Allowed localhost origin: ${origin}`);
       return callback(null, true);
     }
 
-    // Check wildcard match for Vercel
-    if (allowedOrigins.some(allowed => {
-      if (allowed.includes("*")) {
-        const pattern = allowed.replace("*", ".*");
-        return new RegExp(pattern).test(origin);
-      }
-      return false;
-    })) {
+    // Allow specific frontend URL if set
+    if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) {
+      console.log(`✅ Allowed configured frontend: ${origin}`);
       return callback(null, true);
     }
 
-    console.warn(`⚠️ CORS request from unauthorized origin: ${origin}`);
+    console.warn(`⚠️ CORS request DENIED from: ${origin}`);
     callback(new Error("Not allowed by CORS"));
   },
   credentials: true,
