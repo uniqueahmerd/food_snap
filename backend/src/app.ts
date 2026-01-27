@@ -15,27 +15,30 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:5173",
+  "http://localhost:3000",
   "https://food-snap-frontend.vercel.app",
 ];
 
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
-    if (origin && allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
     }
   },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: [
     "Content-Type",
     "Authorization",
     "X-Requested-With",
     "Accept",
   ],
+  exposedHeaders: ["Content-Length", "X-JSON-Response"],
   preflightContinue: false,
-  optionsSuccessStatus: 204,
+  optionsSuccessStatus: 200,
 };
 
 app.use(cors(corsOptions));
@@ -43,7 +46,6 @@ app.use(cors(corsOptions));
 app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
-
 
 app.use("/api/v1/auth", userRouter);
 app.use("/api/v1/food", foodRouter);

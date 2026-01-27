@@ -25,7 +25,7 @@ export class FoodService {
       const scanId = uuidv4();
       const id = userId;
 
-      const calories = nutrients.calories;      
+      const calories = nutrients.calories;
       const result = await this.repo.insertToFood(
         scanId,
         id,
@@ -39,7 +39,9 @@ export class FoodService {
         risk_level
       );
 
-    console.log("params from service",  scanId,
+      console.log(
+        "params from service",
+        scanId,
         id,
         food,
         nutrients,
@@ -48,12 +50,13 @@ export class FoodService {
         advice,
         substitute,
         healthCondition,
-        risk_level,);
-    
+        risk_level
+      );
+
       console.log("result from service", result);
-      
+
       // Return response in format client expects
-      return { 
+      return {
         result: {
           food,
           confidence,
@@ -63,17 +66,16 @@ export class FoodService {
           healthCondition,
           riskLevel: risk_level,
           calories,
-          scanId
-        }
+          scanId,
+        },
       };
     } catch (error: any) {
       throw new Error(error.message);
     }
   }
 
-  async getMealHistory () {
+  async getMealHistory() {
     const result = await this.repo.mealHistory();
     return result;
   }
-
 }

@@ -14,11 +14,7 @@ export const analyze = async (req: Request, res: Response) => {
     }
 
     const userId = req.user.userId;
-    const response = await service.analyzeFood(
-      image,
-      healthCondition,
-      userId
-    );
+    const response = await service.analyzeFood(image, healthCondition, userId);
     console.log("result from cont", response);
 
     res.json(response.result);
@@ -32,7 +28,7 @@ export const analyze = async (req: Request, res: Response) => {
 
 export const mealHistory = async (req: Request, res: Response) => {
   try {
-    const { result } = await service.getMealHistory();
+    const result = await service.getMealHistory();
 
     res.json({
       result,
