@@ -12,17 +12,16 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitMessage, setSubmitMessage] = useState<string | null>(null);
-  const [messageType, setMessageType] = useState<"success" | "error" | null>(null);
+  const [messageType, setMessageType] = useState<"success" | "error" | null>(
+    null
+  );
 
   const { login, register, loading, user } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    
 
     // Validate password length
     if (password.length < 6) {
@@ -54,7 +53,7 @@ const Login = () => {
         setSubmitMessage("Login successful");
         setMessageType("success");
         console.log("user", user);
-        
+
         // Show success briefly then navigate to dashboard
         setTimeout(() => {
           setSubmitMessage(null);
@@ -65,8 +64,10 @@ const Login = () => {
     } catch (err: any) {
       console.error(err);
       const msg =
-        err?.response?.data.user.message || "An unexpected error occurred";
-   
+        err?.response?.data?.message ||
+        err?.message ||
+        "An unexpected error occurred";
+
       setSubmitError(msg);
       setSubmitMessage(null);
       setMessageType("error");
@@ -171,7 +172,7 @@ const Login = () => {
               {isSignup ? "Create Account" : "Welcome Back"}
             </h2>
 
-            {(submitMessage || submitError ) && (
+            {(submitMessage || submitError) && (
               <div
                 role="alert"
                 className={`mb-4 p-3 border rounded-lg text-sm flex items-start justify-between ${

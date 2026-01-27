@@ -72,10 +72,10 @@ def analyze_food(data: ImagePayload):
     class_index = int(np.argmax(preds))
     predicted_class = class_names[class_index]
 
-    predictions = [
-        {"label": class_names[i], "confidence": float(preds[i])}
-        for i in range(len(class_names))
-    ]
+    # predictions = [
+    #     {"label": class_names[i], "confidence": float(preds[i])}
+    #     for i in range(len(class_names))
+    # ]
 
     food_name_for_response = predicted_class
     if confidence < CONFIDENCE_THRESHOLD:
@@ -83,7 +83,7 @@ def analyze_food(data: ImagePayload):
         return {
             "food": food_name_for_response,
             "confidence": round(confidence, 3),
-            "predictions": predictions,
+            # "predictions": predictions,
             "result": "Food not recognized with high confidence. Cannot generate advice.",
             "nutrients": {
                 "calories": 0,
@@ -133,7 +133,7 @@ def analyze_food(data: ImagePayload):
     return {
     "food": food_name_for_response,
     "confidence": round(confidence, 3),
-    "predictions": predictions,
+    # "predictions": predictions,
     "nutrients": nutrients,
     "advice": advice, 
     "substitute": substitute,

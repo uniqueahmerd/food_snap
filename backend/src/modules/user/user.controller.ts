@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { UserService } from "./user.service.js";
+import { UserRepositry } from "./user.repo.js";
 import { validationResult } from "express-validator";
+import jwt from "jsonwebtoken";
 
 const service = new UserService();
 
@@ -21,14 +23,12 @@ export const register = async (req: Request, res: Response) => {
       email,
       password
     );
-    
-    
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-      path: "/api/auth/v1/refresh",
+      sameSite: "lax",
+      path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -58,24 +58,32 @@ export const login = async (req: Request, res: Response) => {
   }
   try {
     const { email, password } = req.body;
-    const {user, accessToken, refreshToken } = await service.login(email, password);
-    
+    const { user, accessToken, refreshToken } = await service.login(
+      email,
+      password
+    );
+
+    console.log("✅ Login successful for:", email);
+    console.log("📝 Setting refresh token cookie...");
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-      path: "/api/auth/v1/refresh",
+      sameSite: "lax",
+      path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-     
+
+    console.log("🍪 Cookie set successfully");
+
     res.status(201).json({
       success: true,
-      message: "User registered successfully",
+      message: "Login successful",
       user,
       accessToken,
     });
   } catch (error: any) {
+    console.error("❌ Login error:", error.message);
     res.status(500).json({
       success: false,
       message: "Login failed please try again",
@@ -86,11 +94,15 @@ export const login = async (req: Request, res: Response) => {
 
 export const logout = async (req: Request, res: Response) => {
   const refresh = req.cookies.refreshToken;
-  
+
   try {
     await service.logout(refresh);
 
-    res.clearCookie("refreshToken");
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+    });
 
     res.status(200).json({
       success: true,
@@ -108,7 +120,44 @@ export const logout = async (req: Request, res: Response) => {
 export const refreshAccessToken = async (req: Request, res: Response) => {
   const token = req.cookies.refreshToken;
 
-  const { accessToken } = await service.refreshAccessToken(token);
+  console.log("🔄 Refresh Token Request");
+  console.log("Token received:", token ? "✅ Yes" : "❌ No");
+  console.log("All cookies:", req.cookies);
 
-  res.json({ accessToken });
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: "No refresh token provided",
+    });
+  }
+
+  try {
+    console.log("1️⃣ Creating service...");
+    const service = new UserService();
+    console.log("2️⃣ Refreshing access token...");
+    const { accessToken } = await service.refreshAccessToken(token);
+    console.log("3️⃣ Access token generated:", accessToken ? "✅" : "❌");
+
+    // Fetch user data to return with the new token
+    console.log("4️⃣ Decoding token...");
+    const decoded = jwt.decode(token) as any;
+    console.log("5️⃣ Decoded userId:", decoded?.userId);
+
+    console.log("6️⃣ Creating repo and finding user...");
+    const repo = new UserRepositry();
+    const user = await repo.findById(decoded?.userId);
+    console.log("7️⃣ User found:", user ? "✅" : "❌");
+
+    console.log("8️⃣ Sending response...");
+    res.status(200).json({ accessToken, user });
+    console.log("9️⃣ Response sent!");
+  } catch (error: any) {
+    console.error("❌ Refresh error:", error.message);
+    console.error("Stack:", error.stack);
+    res.status(401).json({
+      success: false,
+      message: "Token refresh failed",
+      error: error.message,
+    });
+  }
 };

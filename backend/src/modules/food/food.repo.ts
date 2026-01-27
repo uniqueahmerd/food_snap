@@ -1,8 +1,8 @@
-import { pool } from "../../config/db.js";
+import { pool } from "../../config/db/db.js";
 
-export type foodInfo = {
+export type FoodInfo = {
   scanId: string;
-  userId: string;
+  id: string;
   food: string;
   nutrients: object;
   calories: number;
@@ -10,34 +10,47 @@ export type foodInfo = {
   advice: string;
   substitute: string;
   healthCondition?: string;
+  risk_level: string;
 };
 
 export class FoodRepositry {
-  async insertToFood({
-    scanId,
-    userId,
-    food,
-    nutrients,
-    calories,
-    confidence,
-    advice,
-    substitute,
-    healthCondition,
-  }: foodInfo): Promise<foodInfo> {
+  async insertToFood(
+    scanId: string,
+    id: string,
+    food: string,
+    nutrients: object,
+    calories: number,
+    confidence: number,
+    advice: string,
+    substitute: string,
+    risk_level: string,
+    healthCondition?: string
+  ): Promise<FoodInfo> {
     const result = await pool.query(
-      "INSERT INTO food_scan (id, user_id, dish_name, nutrients, calories, confidence, health_assesment, recommendations, health_condition, scanned_at, created_at) VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7, $8,$9, NOW(), NOW()",
+      "INSERT INTO food_scan ( id, user_id, dish_name, nutrients, calories, confidence, health_assesment, recommendations, health_condition, risk_level, scanned_at, created_at) VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7, $8, $9, $10, NOW(), NOW() )",
       [
         scanId,
-        userId,
+        id,
         food,
         JSON.stringify(nutrients),
         calories,
         confidence,
         advice,
         substitute,
-        healthCondition,
+        healthCondition ?? null,
+        risk_level,
       ]
     );
+    console.log("result from repo", result.rows[0]);
+
     return result.rows[0] ?? null;
+  }
+
+  async mealHistory() {
+    const result = await pool.query(
+      "SELECT * FROM food_scan ORDER BY created_at DESC LIMIT 10"
+    );
+
+    return result.rows ?? [];
   }
 }

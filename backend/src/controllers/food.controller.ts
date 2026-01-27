@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { pool } from "../config/db.js";
+import { pool } from "../config/db/db.js";
 import { analyzeWithAI } from "../services/ai.service.js";
 import { v4 as uuidv4 } from "uuid";
 // import { fetchNutrition } from "../services/nutrition.service";
@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 export const analyzeFood = async (req: Request, res: Response) => {
   try {
     const { image, healthCondition } = req.body;
-    
+
     if (!image) {
       return res.status(400).json({ message: "Image is required" });
     }
@@ -22,12 +22,12 @@ export const analyzeFood = async (req: Request, res: Response) => {
       healthCondition ? [healthCondition] : []
     );
 
-
-    const { food, confidence, nutrients, predictions, advice, substitute } =
+    const { food, confidence, nutrients, advice, substitute, risk_level } =
       aiResult;
 
     const scanId = uuidv4();
     const userId = req.user.userId;
+
     // 2️⃣ Save to DB (optional, safe)
 
     await pool.query(
@@ -42,10 +42,11 @@ export const analyzeFood = async (req: Request, res: Response) => {
         health_assesment,
         recommendations,
         health_condition,
+        risk_level,
         scanned_at,
         created_at
       )
-      VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7, $8,$9, NOW(), NOW() )
+      VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7, $8, $9, $10, NOW(), NOW() )
       `,
       [
         scanId,
@@ -57,8 +58,9 @@ export const analyzeFood = async (req: Request, res: Response) => {
         advice,
         substitute,
         healthCondition ?? null,
+        risk_level,
       ]
-    ); 
+    );
 
     // 3️⃣ SEND FULL AI RESPONSE TO FRONTEND
     return res.json({
@@ -67,10 +69,10 @@ export const analyzeFood = async (req: Request, res: Response) => {
       food,
       confidence,
       nutrients,
-      predictions,
       healthCondition,
       advice,
       substitute,
+      risk_level,
     });
   } catch (error: any) {
     console.error("Food analysis failed:", error.message);
@@ -89,5 +91,3 @@ export const analyzeFood = async (req: Request, res: Response) => {
 //   );
 //   res.json(result.rows);
 // };
-
-

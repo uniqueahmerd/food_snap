@@ -73,19 +73,21 @@ const Camera = () => {
     try {
       // ✅ Remove base64 prefix
       const cleanBase64 = imageData.replace(/^data:image\/\w+;base64,/, "");
-
-      const response = await api.post(
-        `/food/analyze`,
+      
+      const response = await api.post("food/analyze",
         {
-          image: cleanBase64,
-          healthCondition, // string | string[]
+          image: cleanBase64 as string,
+          healthCondition,
         },
         { timeout: 60000 }
       );
-      console.log("response", response.data);
 
-      const data = response.data.data;
+      console.log("res", response.data);
+      
 
+      const data = response.data;
+         console.log("data from client", data);
+         
       // 🔐 SAFETY FALLBACKS
       const dishName = data.food ?? "unknown_food";
       const confidence = data.confidence ?? 0;
@@ -173,7 +175,7 @@ const Camera = () => {
                 {t("healthCondition")}:
               </span>
               <HealthConditionSelector
-                value={healthCondition}
+                value={healthCondition as HealthCondition}
                 onChange={handleHealthConditionChange}
               />
             </div>

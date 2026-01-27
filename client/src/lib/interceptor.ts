@@ -5,7 +5,7 @@ let isRefreshing = false;
 let failedQueue: any[] = [];
 
 const processQueue = (error: any, token: string | null) => {
-  failedQueue.forEach(p => {
+  failedQueue.forEach((p) => {
     error ? p.reject(error) : p.resolve(token);
   });
   failedQueue = [];
@@ -13,7 +13,7 @@ const processQueue = (error: any, token: string | null) => {
 
 export const setupInterceptors = () => {
   // REQUEST
-  api.interceptors.request.use(config => {
+  api.interceptors.request.use((config) => {
     const token = tokenStore.get();
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
@@ -21,14 +21,14 @@ export const setupInterceptors = () => {
 
   // RESPONSE
   api.interceptors.response.use(
-    res => res,
-    async error => {
+    (res) => res,
+    async (error) => {
       const originalRequest = error.config;
 
       if (
         error.response?.status === 401 &&
         !originalRequest._retry &&
-        !originalRequest.url.includes("/auth/refresh", { withCredentials: true })
+        !originalRequest.url.includes("/auth/refresh")
       ) {
         if (isRefreshing) {
           return new Promise((resolve, reject) => {
@@ -46,7 +46,9 @@ export const setupInterceptors = () => {
         isRefreshing = true;
 
         try {
-          const res = await api.post("/auth/refresh", { withCredentials: true }); // uses HTTP-only cookie
+          const res = await api.post("/auth/refresh", {
+            withCredentials: true,
+          }); // uses HTTP-only cookie
           const newToken = res.data.accessToken;
 
           tokenStore.set(newToken);
@@ -67,4 +69,3 @@ export const setupInterceptors = () => {
     }
   );
 };
-

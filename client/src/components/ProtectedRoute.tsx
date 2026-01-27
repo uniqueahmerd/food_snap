@@ -9,18 +9,10 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
-  const { user, loading, refresh } = useAuth();
-
-  // On mount, try to refresh token if user is null
-  useEffect(() => {
-    if (!user) {
-      refresh().catch(() => {
-        // No action needed, user remains null if refresh fails
-      });
-    }
-  }, [user, refresh]);
+  const { user, loading } = useAuth();
 
   // Show loading spinner while auth status is being checked
+  // This includes both the initial auth check AND any refresh calls
   if (loading) {
     return <LoadingSpinner />;
   }

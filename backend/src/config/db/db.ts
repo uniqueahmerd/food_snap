@@ -5,6 +5,7 @@ import dotenv from "dotenv"
 dotenv.config();
 
 export const pool = new Pool({ 
+  connectionString: process.env.DATABASE_URL 
   //  host: process.env.DB_HOST,
   // port: process.env.DB_PORT as any,
   // user: process.env.DB_USER,
@@ -13,7 +14,6 @@ export const pool = new Pool({
   // ssl: {
   //   rejectUnauthorized: false,
   // },
-  connectionString: process.env.DATABASE_URL 
 });
 pool.on("connect", () => console.log("database conected"))
 

@@ -1,4 +1,4 @@
-import { pool } from "../config/db.js";
+import { pool } from "../config/db/db.js";
 
 export const getSummary = async (userId: any) => {
   const todayCaloriesQuery = `

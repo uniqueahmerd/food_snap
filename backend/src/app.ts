@@ -1,16 +1,17 @@
-import express from "express";
 import cors from "cors";
-import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import dotenv from "dotenv";
+import express from "express";
+import cookieParser from "cookie-parser";
 
+//local imports
 import userRouter from "./modules/user/user.routes.js";
 import foodRouter from "./modules/food/food.routes.js";
 import DashboardRouter from "./routes/Dashboard.routes.js";
 
 dotenv.config();
-const app = express();
 
+const app = express();
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -19,24 +20,25 @@ const allowedOrigins = [
 
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
-    if (!origin) return callback(null, true); // allow server-to-server
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
+    if (origin && allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
     }
-
-    return callback(null, false);
   },
-  credentials: true, // REQUIRED for cookies
+  credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+    "Accept",
+  ],
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
 };
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
-
-
-
 
 app.use(helmet());
 app.use(express.json());

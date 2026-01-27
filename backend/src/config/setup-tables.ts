@@ -1,8 +1,7 @@
-import { pool } from "./db.js";
+import { pool } from "./db/db.js";
 
 export async function setupTables() {
   try {
-   
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -13,7 +12,7 @@ export async function setupTables() {
         created_at TIMESTAMP DEFAULT NOW()
       );
     `);
-    
+
     await pool.query(`
       CREATE TABLE refresh_tokens (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -52,7 +51,6 @@ export async function setupTables() {
       );
       `);
 
-
     await pool.query(`
       CREATE TABLE food_analysis(
           id UUID PRIMARY KEY,
@@ -66,19 +64,31 @@ export async function setupTables() {
           REFERENCES users(id)
           ON DELETE CASCADE
       );
-      `)
+      `);
 
-
-await pool.query(` CREATE INDEX idx_food_scan_user_id ON food_scan (user_id, scanned_at);`); 
-await pool.query(`CREATE INDEX idx_food_scans_risk ON food_scan (user_id, risk_level);`);  
-await pool.query(`CREATE INDEX idx_food_scans_scanned_at ON food_scan (scanned_at);`);
-await pool.query(`CREATE INDEX idx_food_scans_nutrients ON food_scan USING GIN (nutrients);`);
-await pool.query(`CREATE INDEX idx_food_analysis_user_id ON food_analysis (user_id);`);
-await pool.query(`CREATE INDEX idx_food_analysis_updated_at ON food_analysis (updated_at);`);
-await pool.query(`CREATE INDEX idx_food_analysis_summary ON food_analysis USING GIN (summary);`);
+    await pool.query(
+      ` CREATE INDEX idx_food_scan_user_id ON food_scan (user_id, scanned_at);`
+    );
+    await pool.query(
+      `CREATE INDEX idx_food_scans_risk ON food_scan (user_id, risk_level);`
+    );
+    await pool.query(
+      `CREATE INDEX idx_food_scans_scanned_at ON food_scan (scanned_at);`
+    );
+    await pool.query(
+      `CREATE INDEX idx_food_scans_nutrients ON food_scan USING GIN (nutrients);`
+    );
+    await pool.query(
+      `CREATE INDEX idx_food_analysis_user_id ON food_analysis (user_id);`
+    );
+    await pool.query(
+      `CREATE INDEX idx_food_analysis_updated_at ON food_analysis (updated_at);`
+    );
+    await pool.query(
+      `CREATE INDEX idx_food_analysis_summary ON food_analysis USING GIN (summary);`
+    );
 
     console.log("✅ Tables and indexes created successfully!");
-
   } catch (err: any) {
     console.error("❌ Error setting up tables:", err.message);
   }
