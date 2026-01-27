@@ -13,11 +13,20 @@ dotenv.config();
 
 const app = express();
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "https://food-snap-frontend.vercel.app",
-];
+// Get allowed origins from environment variable or use defaults
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(",")
+  : ["http://localhost:5173", "http://localhost:3000"];
+
+// Add FRONTEND_URL from environment if it's not localhost
+if (
+  process.env.FRONTEND_URL &&
+  !process.env.FRONTEND_URL.includes("localhost")
+) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+}
+
+console.log("🔓 Allowed CORS Origins:", allowedOrigins);
 
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
@@ -25,6 +34,7 @@ const corsOptions: cors.CorsOptions = {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.warn(`❌ CORS blocked origin: ${origin}`);
       callback(new Error("Not allowed by CORS"));
     }
   },
