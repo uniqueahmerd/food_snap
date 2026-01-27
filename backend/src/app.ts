@@ -13,30 +13,69 @@ dotenv.config();
 
 const app = express();
 
-// Get allowed origins from environment variable or use defaults
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(",")
-  : ["http://localhost:5173", "http://localhost:3000"];
+// Get allowed origins from environment variable or use defaults based on environment
+let allowedOrigins: string[] = [];
 
-// Add FRONTEND_URL from environment if it's not localhost
-if (
-  process.env.FRONTEND_URL &&
-  !process.env.FRONTEND_URL.includes("localhost")
-) {
-  allowedOrigins.push(process.env.FRONTEND_URL);
+if (process.env.NODE_ENV === "production") {
+  // In production, be restrictive but include common Vercel domains
+  allowedOrigins = [
+    "https://food-snap-frontend.vercel.app",
+    "https://*.vercel.app", // Allow any Vercel deployment
+  ];
+  
+  // Add specific frontend URL if set
+  if (process.env.FRONTEND_URL && !allowedOrigins.includes(process.env.FRONTEND_URL)) {
+    allowedOrigins.push(process.env.FRONTEND_URL);
+  }
+  
+  // Add any additional origins from ALLOWED_ORIGINS env var
+  if (process.env.ALLOWED_ORIGINS) {
+    const additionalOrigins = process.env.ALLOWED_ORIGINS.split(",").map(o => o.trim());
+    allowedOrigins.push(...additionalOrigins);
+  }
+} else {
+  // In development, allow localhost and any from ALLOWED_ORIGINS
+  allowedOrigins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:3000",
+  ];
+  
+  if (process.env.ALLOWED_ORIGINS) {
+    const additionalOrigins = process.env.ALLOWED_ORIGINS.split(",").map(o => o.trim());
+    allowedOrigins.push(...additionalOrigins);
+  }
 }
 
 console.log("🔓 Allowed CORS Origins:", allowedOrigins);
+console.log("📌 Running in:", process.env.NODE_ENV || "development");
 
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.warn(`❌ CORS blocked origin: ${origin}`);
-      callback(new Error("Not allowed by CORS"));
+    if (!origin) {
+      // Allow requests with no origin
+      return callback(null, true);
     }
+
+    // Check exact match
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    // Check wildcard match for Vercel
+    if (allowedOrigins.some(allowed => {
+      if (allowed.includes("*")) {
+        const pattern = allowed.replace("*", ".*");
+        return new RegExp(pattern).test(origin);
+      }
+      return false;
+    })) {
+      return callback(null, true);
+    }
+
+    console.warn(`⚠️ CORS request from unauthorized origin: ${origin}`);
+    callback(new Error("Not allowed by CORS"));
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
