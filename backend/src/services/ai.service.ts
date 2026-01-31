@@ -36,7 +36,6 @@ export const analyzeWithAI = async (imageBase64: string, conditions: string[]) =
   );
 
   const aiResponse = response.data;
-  console.log("data from ai-service",response.data);
   
   const advice = String(aiResponse.advice);
 

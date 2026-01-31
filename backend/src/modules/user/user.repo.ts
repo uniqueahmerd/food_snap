@@ -1,4 +1,4 @@
-import { pool } from "../../config/db/db.js";
+import { pool } from "../../config/database/db.js";
 
 export type UserRow = {
   id: string;
@@ -51,7 +51,7 @@ export class UserRepositry {
 
   async updatingRevoked(token: string) {
     const result = await pool.query(
-      "UPDATE refresh_tokens SET reveked = true WHERE token = $1",
+      "UPDATE refresh_tokens SET revoked = true WHERE token = $1",
       [token]
     );
 
@@ -60,7 +60,7 @@ export class UserRepositry {
 
   async checkingTokenInDb(token: string) {
     const result = await pool.query(
-      "SELECT * FROM refresh_tokens WHERE token = $1 AND reveked = false AND expires_at > NOW()",
+      "SELECT * FROM refresh_tokens WHERE token = $1 AND revoked = false AND expires_at > NOW()",
       [token]
     );
 
@@ -69,7 +69,7 @@ export class UserRepositry {
 
   async rotateToken(token: string) {
     const result = await pool.query(
-      "UPDATE refresh_tokens SET reveked = true WHERE token = $1",
+      "UPDATE refresh_tokens SET revoked = true WHERE token = $1",
       [token]
     );
 

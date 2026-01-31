@@ -19,8 +19,7 @@ export class FoodService {
         healthCondition ? [healthCondition] : []
       );
 
-      const { food, confidence, nutrients, advice, substitute, risk_level } =
-        aiResult;
+      const { food, confidence, nutrients, advice, substitute, risk_level } = aiResult;
 
       const scanId = uuidv4();
       const id = userId;
@@ -38,22 +37,6 @@ export class FoodService {
         healthCondition,
         risk_level
       );
-
-      console.log(
-        "params from service",
-        scanId,
-        id,
-        food,
-        nutrients,
-        calories,
-        confidence,
-        advice,
-        substitute,
-        healthCondition,
-        risk_level
-      );
-
-      console.log("result from service", result);
 
       // Return response in format client expects
       return {

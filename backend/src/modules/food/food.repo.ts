@@ -1,4 +1,4 @@
-import { pool } from "../../config/db/db.js";
+import { pool } from "../../config/database/db.js";
 
 export type FoodInfo = {
   scanId: string;
@@ -23,8 +23,8 @@ export class FoodRepositry {
     confidence: number,
     advice: string,
     substitute: string,
-    risk_level: string,
-    healthCondition?: string
+    healthCondition: string,
+    risk_level: string
   ): Promise<FoodInfo> {
     const result = await pool.query(
       "INSERT INTO food_scan ( id, user_id, dish_name, nutrients, calories, confidence, health_assesment, recommendations, health_condition, risk_level, scanned_at, created_at) VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7, $8, $9, $10, NOW(), NOW() )",
@@ -41,8 +41,7 @@ export class FoodRepositry {
         risk_level,
       ]
     );
-    console.log("result from repo", result.rows[0]);
-
+    
     return result.rows[0] ?? null;
   }
 

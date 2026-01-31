@@ -18,4 +18,4 @@ export const pool = new Pool({
         }
       : false,
 });
-pool.on("connect", () => console.log("database conected"));
+pool.on("connect", () => console.log("Database conected"));

@@ -59,7 +59,7 @@ export class UserService {
   }
 
   async login(email: string, password: string) {
-    try {
+    try { 
       //basic validation
       if (!email || !password) throw new Error("All fields are required");
 
@@ -81,13 +81,8 @@ export class UserService {
       const accessToken = generateAccessToken(user.id, user.role as string);
       const refreshToken = generateRefreshToken(user.id, user.role as string);
 
-      console.log("🔐 Storing refresh token in DB for user:", user.id);
       // Store refresh token
       await this.repo.storingRefreshToken(user.id, refreshToken);
-      console.log("✅ Refresh token stored successfully in DB");
-
-      // await this.repo.rotateToken(refreshToken);
-
       return { user, accessToken, refreshToken };
     } catch (err: any) {
       console.log("❌ Login service error:", err.message);
@@ -122,12 +117,9 @@ export class UserService {
 
       // 2. Check token exists in DB and not revoked
       const result = await this.repo.checkingTokenInDb(token);
-      console.log("result", result);
 
       if (!result) throw new Error("Token revoked or expired");
 
-      // 3. Generate new access token (but keep refresh token valid)
-      // Don't rotate the refresh token - let it live for full 7 days
       // It will only be revoked on logout
       const accessToken = generateAccessToken(
         refreshToken.userId,

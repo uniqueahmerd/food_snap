@@ -7,7 +7,7 @@ import { authenticate, authorize } from "../../midddleware/auth.middleware.js";
 
 const foodRouter = Router();
 
-foodRouter.post("/analyze", authenticate, authorize("user"), analyze);
-foodRouter.post("/history", authenticate, authorize("user"), mealHistory);
+foodRouter.post("/analyze", authenticate, analyze);
+foodRouter.post("/history", authenticate, mealHistory);
 
 export default foodRouter;
