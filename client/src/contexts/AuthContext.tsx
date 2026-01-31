@@ -21,17 +21,24 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  accessToken?: string;
   refresh: () => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
+  verifyEmail: (email: string) => Promise<void>;
+  verifyOtp: (otp: string) => Promise<void>;
+  resetPassword: (password: string) => Promise<void>;
+  accessToken?: string;
+  error: string
+  isAdmin: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true); // Start as true to prevent immediate redirect
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("")
   const [initialized, setInitialized] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false)
 
   // Setup interceptors and restore auth state on mount
   useEffect(() => {
@@ -42,21 +49,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     let mounted = true; // Track if component is still mounted
 
     const initializeAuth = async () => {
-      console.log("🚀 AuthProvider: Starting initializeAuth...");
       try {
-        console.log("📡 AuthProvider: Calling /auth/refresh...");
         const res = await api.post(
           "/auth/refresh",
           {},
           { withCredentials: true }
         ); // refresh token from cookie
+        
         const token = res.data.accessToken;
-        console.log("✅ AuthProvider: Got token from refresh");
         tokenStore.set(token);
 
         // User data is returned from refresh endpoint
         if (mounted && res.data.user) {
-          console.log("👤 AuthProvider: Setting user from refresh");
           setUser(res.data.user);
         }
         if (mounted) {
@@ -64,15 +68,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setLoading(false);
         }
       } catch (err: any) {
-        // 401 is expected when user is not logged in - no need to log this
-        if (err?.response?.status !== 401) {
-          console.error(
-            "❌ AuthProvider: Auth initialization error:",
-            err.message || err
-          );
-        } else {
-          console.log("ℹ️ AuthProvider: No stored session (expected)");
-        }
         if (mounted) {
           tokenStore.set(null);
           setUser(null);
@@ -85,7 +80,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     initializeAuth();
 
     return () => {
-      mounted = false; // Cleanup function to prevent state updates after unmount
+      mounted = false;
     };
   }, [initialized]);
 
@@ -108,7 +103,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     }
   };
-
   const login = async (email: string, password: string) => {
     setLoading(true);
     try {
@@ -119,8 +113,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       );
       const token = res.data.accessToken;
       tokenStore.set(token);
-
       setUser(res.data.user);
+
+      if (user?.role === "admin") {
+        setIsAdmin(true)
+      } else {
+        setIsAdmin(false)
+      }
+      console.log("role", user?.role);
+      
     } catch (err) {
       tokenStore.set(null);
       setUser(null);
@@ -129,7 +130,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     }
   };
-
   const logout = async () => {
     try {
       await api.post("/auth/logout"); // clear refresh token cookie
@@ -144,27 +144,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const refresh = async () => {
     setLoading(true);
     try {
-      console.log("🔄 Client: Calling refresh endpoint...");
       const { data } = await api.post(
         "/auth/refresh",
         {},
         { withCredentials: true }
       );
-      console.log("✅ Client: Response received:", data);
-
       // Store access token
       if (data.accessToken) {
-        console.log("💾 Client: Storing access token...");
         tokenStore.set(data.accessToken);
       }
 
       // Set user data
       if (data.user) {
-        console.log("👤 Client: Setting user:", data.user);
         setUser(data.user);
-        setLoading(false); // Only set loading to false after user is set
+        setLoading(false); 
       } else {
-        // If no user data returned, clear user and stop loading
         setUser(null);
         setLoading(false);
       }
@@ -175,10 +169,55 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       throw err;
     }
   };
+  const verifyEmail = async (email: string) => {
+    setLoading(true);
+    try {
+      const res = await api.post(
+        "/auth/verify-email",
+        { email},
+        { withCredentials: true }
+      );
+      setUser(res.data.user)
+      setLoading(false)
+    } catch (error: any) {
+      setError(error.response.data.message)
+      setLoading(false)
+      throw error;
+    }
+  };
+  const verifyOtp = async (otp: string) => {
+    setLoading(true)
+    try {
+       await api.post(
+        "/auth/verify-otp",
+        {otp},
+        {withCredentials: true}
+      );
+      setLoading(false)
+    } catch (error: any) {
+      setError(error.response.data)
+      setLoading(false);
+      throw error;
+    }
+  };
+  const resetPassword = async (password: string) => {
+     setLoading(true);
+     try {
+      await api.post(
+      "/auth/reset-password",
+      {password},
+      {withCredentials: true}
+     )
+     } catch (error: any) {
+      setError(error.response.data)
+      setLoading(false);
+      throw error;
+     }
+  }
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, logout, refresh, register }}
+      value={{ user, loading, login, logout, refresh, register, verifyEmail, verifyOtp, resetPassword, error, isAdmin }}
     >
       {children}
     </AuthContext.Provider>

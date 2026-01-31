@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link,  useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Eye, EyeOff, Utensils } from "lucide-react"; //Shield, Heart, Users, Mail
 import { useAuth } from "../contexts/AuthContext";
@@ -16,10 +16,9 @@ const Login = () => {
     null
   );
 
-  const { login, register, loading, user } = useAuth();
+  const { login, register, loading} = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -41,7 +40,6 @@ const Login = () => {
         setEmail("");
         setPassword("");
         setName("");
-        // user?.role === "admin" ? navigate("/admin") : navigate("/dashboard")
         // Give user a moment to read the message, then navigate to login
         setTimeout(() => {
           setSubmitMessage(null);
@@ -52,19 +50,16 @@ const Login = () => {
         setSubmitError(null);
         setSubmitMessage("Login successful");
         setMessageType("success");
-        console.log("user", user);
-
         // Show success briefly then navigate to dashboard
         setTimeout(() => {
           setSubmitMessage(null);
           setMessageType(null);
-          navigate("/dashboard");
+         navigate("/dashboard")
         }, 900);
       }
     } catch (err: any) {
       console.error(err);
-      const msg =
-        err?.response?.data?.message ||
+      const msg = err.response?.data?.error|| err.response?.data?.message ||
         err?.message ||
         "An unexpected error occurred";
 
@@ -74,7 +69,7 @@ const Login = () => {
     }
   };
 
-  return (
+  return  (
     <div className="min-h-screen flex">
       {/* Left side - Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-green-600 via-emerald-600 to-teal-600 relative overflow-hidden">
@@ -324,7 +319,9 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-4 rounded-lg font-medium hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-4 rounded-lg font-medium hover:from-green-700
+                 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all 
+                 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading
                   ? isSignup
@@ -335,6 +332,15 @@ const Login = () => {
                   : t("login")}
               </button>
             </form>
+            {
+              !isSignup && (
+                <div className="text-right mt-1.5">
+                <Link to={"/forgot-password"} className='text-sm text-gray-700 font-medium hover:underline'>
+                  Forgot password?
+                </Link>
+                </div>
+              )
+            }
 
             <div className="mt-6">
               {/* <div className="relative">

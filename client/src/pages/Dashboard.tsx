@@ -340,7 +340,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+        <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 h-5/5">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-gray-900">
               {t("recentMeals")}
@@ -378,14 +378,17 @@ const Dashboard = () => {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex gap-2 flex-col">
                       <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium border ${getRiskColor(
+                        className={`px-2 py-1 rounded-full text-xs text-center font-medium border w-28 ${getRiskColor(
                           scan.risk_level
                         )}`}
                       >
                         {scan.risk_level}
                       </span>
+                        <div className="px-2 py-1 text-center rounded-full text-xs font-medium border text-green-600 bg-green-50">
+                        {scan.health_condition}
+                        </div>
                     </div>
                     <div className="text-xs text-gray-500">
                       {scan.confidence

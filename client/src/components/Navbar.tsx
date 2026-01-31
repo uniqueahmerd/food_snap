@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { useTranslation } from "react-i18next";
@@ -26,6 +26,8 @@ const Navbar = () => {
   const { logout,  user, isAdmin } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [visible, setVisible] = useState(false);
+  
 
   const handleLogout = async () => {
    await logout();
@@ -48,8 +50,26 @@ const Navbar = () => {
   };
 
   // const { summary } = useDashboardStore();
+ 
+// const list = "forgot-password";
+ const lists = {
+  login:"login",
+  forgotPassword: "forgot-password",
+  verifyOtp: "verify-otp",
+  resetPassword: "reset-password",
+  pageNotFound: ""
+}
 
-  return (
+  useEffect(( )=> {
+      if (!location.pathname.includes(lists.login) && !location.pathname.includes(lists.forgotPassword) && !location.pathname.includes(lists.verifyOtp) &&
+          !location.pathname.includes(lists.verifyOtp) && !location.pathname.includes(lists.resetPassword) && !location.pathname.includes(lists.pageNotFound) ) {
+          setVisible(true)
+      } else {
+        setVisible(false)
+      }
+      
+  },[location])
+  return visible ? (
     <nav className="bg-white shadow-lg border-b border-gray-100 sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
@@ -290,8 +310,8 @@ const Navbar = () => {
           onClick={() => setShowUserMenu(false)}
         ></div>
       )}
-    </nav>
-  );
+    </nav> 
+  ) : "";
 };
 
 export default Navbar;

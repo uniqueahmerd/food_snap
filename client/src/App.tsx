@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -22,6 +23,9 @@ import { DashboardProvider } from "./contexts/DashboardContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { setupInterceptors } from "./lib/interceptor";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ForgotPassword from "./pages/ForgotPassword";
+import VerifyOtp from "./pages/VerifyResetOTP";
+import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -80,9 +84,10 @@ class ErrorBoundary extends React.Component<
 }
 
 function AppContent() {
+  
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
-      <Navbar />
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex flex-col">
+        <Navbar />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route
@@ -118,6 +123,16 @@ function AppContent() {
         <Route path="/" element={
           <Navigate to="/dashboard" replace />
         } />
+        <Route path="/forgot-password" element={
+           <ForgotPassword />
+        } />
+       <Route path="/verify-otp" element={
+           <VerifyOtp />
+        } />
+       <Route path="/reset-password" element={
+           <ResetPassword />
+        } />
+
         <Route
           path="*"
           element={
@@ -140,6 +155,7 @@ function AppContent() {
             </div>
           }
         />
+      
       </Routes>
     </div>
   );

@@ -25,6 +25,7 @@ type RecentScan = {
   calories: number;
   risk_level: "low" | "medium" | "high";
   scanned_at: string;
+  health_condition: string
 };
 
 type WeeklyTrend = {
@@ -44,7 +45,7 @@ interface DashboardContextType {
   recentScans: RecentScan[];
   weeklyTrend: WeeklyTrend[];
   nutritionBreakdown: NutritionBreakdown | null;
-  healthRisk: any[];
+  healthRisk: object[];
   loading: boolean;
   error: string | null;
   loadDashboardData: () => Promise<void>;
@@ -64,7 +65,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [recentScans, setRecentScans] = useState<RecentScan[]>([]);
   const [weeklyTrend, setWeeklyTrend] = useState<WeeklyTrend[]>([]);
   const [nutritionBreakdown, setNutritionBreakdown] = useState<NutritionBreakdown | null>(null);
-  const [healthRisk, setHealthRisk] = useState<any[]>([]);
+  const [healthRisk, setHealthRisk] = useState<object[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -88,7 +89,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         api.get("/dashboard/nutrition-breakdown"),
         api.get("/dashboard/health-risk"),
       ]);
-
+       
       setSummary(summaryRes.data);
       setRecentScans(recentScansRes.data);
       setWeeklyTrend(weeklyTrendRes.data);

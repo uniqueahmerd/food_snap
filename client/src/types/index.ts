@@ -3,20 +3,16 @@ export interface User {
   email: string;
   name: string;
   role?: 'admin' | 'user';
-  // avatar?: string;
-  // healthCondition?: HealthCondition;
   createdAt: string;
-  // healthCondition: string;
-  // lastLogin?: string;
 }
 
 export type HealthCondition = 
-  | 'normal' 
-  | 'diabetic' 
-  | 'hypertensive' 
-  | 'weight_loss' 
-  | 'pregnant_nursing' 
-  | 'cholesterol_watch';
+  | 'Normal' 
+  | 'Diabetic' 
+  | 'Hypertensive' 
+  | 'Weight Loss' 
+  | 'Pregnant Nursing' 
+  | 'Cholesterol Watch';
 
 export interface NutritionAnalysis {
   id: string;
@@ -38,7 +34,6 @@ export interface NutritionAnalysis {
   };
   advice: string;
   substitute: string;
-  // healthCondition: HealthCondition;
   healthFlags: {
     level: 'green' | 'yellow' | 'red';
     message: string;

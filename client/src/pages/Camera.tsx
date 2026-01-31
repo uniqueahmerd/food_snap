@@ -19,11 +19,12 @@ const Camera = () => {
   const [analyzing, setAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<NutritionAnalysis | null>(null);
   const [cameraActive, setCameraActive] = useState(false);
-  const [healthCondition, setHealthCondition] = useState<HealthCondition | null>(
-  );
+  const [healthCondition, setHealthCondition] = useState<HealthCondition | null>();
+  
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+ 
 
   const startCamera = useCallback(async () => {
     try {
@@ -36,6 +37,7 @@ const Camera = () => {
       }
     } catch (error) {
       console.error("Error accessing camera:", error);
+      // replace with toastify later
       alert(
         "Camera access denied. Please allow camera permissions and try again."
       );
@@ -82,11 +84,7 @@ const Camera = () => {
         { timeout: 60000 }
       );
 
-      console.log("res", response.data);
-      
-
       const data = response.data;
-         console.log("data from client", data);
          
       // 🔐 SAFETY FALLBACKS
       const dishName = data.food ?? "unknown_food";
@@ -119,6 +117,7 @@ const Camera = () => {
       });
     } catch (err: any) {
       console.error("Analysis error:", err?.response?.data || err.message);
+      // replace with toastify later
       alert("Failed to analyze image");
     } finally {
       setAnalyzing(false);
@@ -132,6 +131,7 @@ const Camera = () => {
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
         // 10MB limit
+        // replace with toastify later
         alert("File size too large. Please choose a smaller image.");
         return;
       }
