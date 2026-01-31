@@ -13,22 +13,37 @@ dotenv.config();
 
 const app = express();
 
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(helmet());
 
 // Enable CORS for your frontend with proper options
-const CORS_OPTIONS = [
-  "http://localhost:5173",
-  "https://food-snap-frontend.vercel.app",
-]
+const getCorsOrigins = () => {
+  const origins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:5173",
+  ];
+
+  // Add production frontend URL
+  if (process.env.FRONTEND_URL) {
+    origins.push(process.env.FRONTEND_URL);
+  }
+
+  // Add Vercel frontend if different from FRONTEND_URL
+  if (!origins.includes("https://food-snap-frontend.vercel.app")) {
+    origins.push("https://food-snap-frontend.vercel.app");
+  }
+
+  return origins;
+};
+
 app.use(
   cors({
-    origin: CORS_OPTIONS,
+    origin: getCorsOrigins(),
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: [
       "Content-Type",
       "Authorization",
@@ -37,9 +52,8 @@ app.use(
     ],
     preflightContinue: false,
     optionsSuccessStatus: 204,
-  })
+  }),
 );
-
 
 /* ----------------------------- Application Routes ----------------------------- */
 
