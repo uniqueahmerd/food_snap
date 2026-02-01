@@ -24,13 +24,13 @@ export const register = async (req: Request, res: Response) => {
       password,
     );
 
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      path: "/",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true, // JS cannot access the cookie
+        secure: process.env.NODE_ENV === "production", // only send over HTTPS
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // cross-site in prod
+        path: "/",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
 
     res.status(201).json({
       success: true,
@@ -64,9 +64,9 @@ export const login = async (req: Request, res: Response) => {
     );
 
     res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      httpOnly: true, // JS cannot access the cookie
+      secure: process.env.NODE_ENV === "production", // only send over HTTPS
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // cross-site in prod
       path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
