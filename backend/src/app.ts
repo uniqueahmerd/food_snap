@@ -13,6 +13,8 @@ dotenv.config();
 
 const app = express();
 
+app.set("trust proxy", 1); // needed on Render / Heroku / cloud proxies
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
