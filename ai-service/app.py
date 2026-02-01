@@ -14,6 +14,10 @@ import io
 
 app = FastAPI()
 
+@app.get("/")
+def read_root():
+    return {"message": "Hello from FastAPI on Vercel!"}
+
 # --- Constants ---
 CONFIDENCE_THRESHOLD = 0.5
 
