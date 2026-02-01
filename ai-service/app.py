@@ -35,6 +35,13 @@ def load_model_once():
         model = tf.keras.models.load_model("food_vision_model.keras")
         print("Model loaded!")
 
+# Warm-up model (IMPORTANT)
+print("Warming up model...")
+dummy = np.zeros((1, 224, 224, 3), dtype=np.float32)
+model.predict(dummy)
+print("Model ready!")
+
+
 def load_food_info_once():
     global food_info
     if food_info is None:

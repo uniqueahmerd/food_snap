@@ -81,7 +81,7 @@ const Camera = () => {
           image: cleanBase64 as string,
           healthCondition,
         },
-        { timeout: 60000 }
+        { timeout: 80000 }
       );
 
       const data = response.data;
