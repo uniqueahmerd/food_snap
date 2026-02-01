@@ -1,146 +1,131 @@
-# import gradio as gr
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 import tensorflow as tf
 import numpy as np
 from PIL import Image
 import json
-from datetime import datetime
 from pydantic import BaseModel
 from typing import List
+from tensorflow.keras.applications.efficientnet import preprocess_input
+import base64, io, os
+
 from health_logic import generate_advice
-from tensorflow.keras.applications.efficientnet import preprocess_input as efficientnet_preprocess
-import base64
-import io
 
 app = FastAPI()
 
-@app.get("/")
-def read_root():
-    return {"message": "Hello from FastAPI on Vercel!"}
+# -------------------------
+# Globals (lazy loaded)
+# -------------------------
+model = None
+food_info = None
 
-# --- Constants ---
 CONFIDENCE_THRESHOLD = 0.5
 
-# Load model
-model = tf.keras.models.load_model("food_vision_model.keras")
-
-class_names = [
+CLASS_NAMES = [
     "akara", "banga_soup", "egusi_soup", "jollof_rice", "moi_moi",
     "nkwobi", "okpa", "suya", "tuwo", "yam_porridge"
 ]
 
-# Load food metadata
-with open("food_info.json", "r") as f:
-    food_info = json.load(f)
+# -------------------------
+# Loaders
+# -------------------------
+def load_model_once():
+    global model
+    if model is None:
+        print("Loading model...")
+        model = tf.keras.models.load_model("food_vision_model.keras")
+        print("Model loaded!")
 
-
-# Risk level helper
-def get_risk_level(score):
-    if score <= 30:
-        return "🟢 Low Risk"
-    elif score <= 70:
-        return "🟡 Medium Risk"
-    else:
-        return "🔴 High Risk"
-        
+def load_food_info_once():
+    global food_info
+    if food_info is None:
+        with open("food_info.json", "r") as f:
+            food_info = json.load(f)
 
 # -------------------------
-# Request schema
+# Schemas
 # -------------------------
 class ImagePayload(BaseModel):
-    image: str  # base64 string
+    image: str
     conditions: List[str]
 
+# -------------------------
+# Utils
+# -------------------------
+def get_risk_level(score):
+    if score <= 30:
+        return "Low"
+    elif score <= 70:
+        return "Medium"
+    return "High"
 
 def preprocess_image(b64: str):
     image_bytes = base64.b64decode(b64)
-    image = Image.open(io.BytesIO(image_bytes))
+    image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    image = image.resize((224, 224))
+    arr = tf.keras.preprocessing.image.img_to_array(image)
+    arr = preprocess_input(arr)
+    return np.expand_dims(arr, axis=0)
 
-    # Preprocess image
-    image = image.convert("RGB").resize((224, 224))
-    img = tf.keras.preprocessing.image.img_to_array(image)
-    img = efficientnet_preprocess(img)
-    img = np.expand_dims(img, axis=0)
-    return img
+# -------------------------
+# Routes
+# -------------------------
+@app.get("/")
+def root():
+    return {"status": "AI Service Running"}
+
+@app.get("/health")
+def health():
+    return {"ok": True}
 
 @app.post("/analyze")
 def analyze_food(data: ImagePayload):
-    if not data.conditions:
-        return {"error": "⚠️ Please select at least one health condition."}
 
-    img_array = preprocess_image(data.image)
+    try:
+        load_model_once()
+        load_food_info_once()
 
-    preds = model.predict(img_array)[0]
+        if not data.conditions:
+            raise HTTPException(400, "No health conditions provided")
 
-    confidence = float(np.max(preds))
-    class_index = int(np.argmax(preds))
-    predicted_class = class_names[class_index]
+        img = preprocess_image(data.image)
 
-    # predictions = [
-    #     {"label": class_names[i], "confidence": float(preds[i])}
-    #     for i in range(len(class_names))
-    # ]
+        preds = model.predict(img)[0]
 
-    food_name_for_response = predicted_class
-    if confidence < CONFIDENCE_THRESHOLD:
-        food_name_for_response = "unknown_food"
-        return {
-            "food": food_name_for_response,
-            "confidence": round(confidence, 3),
-            # "predictions": predictions,
-            "result": "Food not recognized with high confidence. Cannot generate advice.",
-            "nutrients": {
-                "calories": 0,
-                "carbs": 0,
-                "protein": 0,
-                "fat": 0,
+        confidence = float(np.max(preds))
+        idx = int(np.argmax(preds))
+        food = CLASS_NAMES[idx]
+
+        if confidence < CONFIDENCE_THRESHOLD:
+            return {
+                "food": "unknown_food",
+                "confidence": round(confidence, 3),
+                "nutrients": {"calories":0,"carbs":0,"protein":0,"fat":0},
+                "advice": "Food not recognized clearly",
+                "risk_level": "Unknown",
+                "risk_score": 0
             }
-        }
-    
-    info = food_info.get(predicted_class)
-    if not info:
+
+        info = food_info.get(food)
+        if not info:
+            raise HTTPException(500, "Food metadata missing")
+
+        advice, risk_score, flags = generate_advice(info, data.conditions)
+
         return {
-            "error": f"Food '{predicted_class}' found but not in database."
+            "food": food,
+            "confidence": round(confidence, 3),
+            "nutrients": {
+                "calories": info["calories"],
+                "carbs": info["carbs"],
+                "protein": info["protein"],
+                "fat": info["fat"]
+            },
+            "advice": advice,
+            "substitute": info.get("substitute"),
+            "risk_level": get_risk_level(risk_score),
+            "risk_score": risk_score
         }
 
-    display_name = info.get("display_name", predicted_class.replace("_", " ").title())
-    substitute = info.get("substitute")
-
-    advice, risk_score, flags = generate_advice(info, data.conditions)
-    risk_level = get_risk_level(risk_score)
-   
-
-    result_string = (
-        f"🍽️ Food: {display_name}\n"
-        f"🌍 Ethnicity: {info['ethnicity']}\n"
-        f"🥦 Ingredients: {info['ingredients']}\n"
-        f"🔥 Calories: {info['calories']} kcal\n"
-        f"🍞 Carbs: {info['carbs']}g\n"
-        f"🥩 Protein: {info['protein']}g\n"
-        f"🧈 Fat: {info['fat']}g\n"
-        f"🌱 Diet Type: {info['diet_type']}\n"
-        f"🔁 Substitute: {substitute}\n\n"
-        f"📈 Confidence: {round(confidence * 100, 2)}%\n"
-        f"📊 Risk Score: {risk_score}% ({risk_level})\n"
-        f"⚠️ Risk Factors: {', '.join(flags) if flags else 'None'}\n"
-        f"✅ Advice: {advice}\n\n"
-        f"📝 *Generated by HoodHealth Pro+.*"
-    )
-
-    nutrients = {
-        "calories": info['calories'],
-        "carbs": info['carbs'],
-        "protein": info['protein'],
-        "fat": info['fat'],
-    }
-    
-    return {
-    "food": food_name_for_response,
-    "confidence": round(confidence, 3),
-    # "predictions": predictions,
-    "nutrients": nutrients,
-    "advice": advice, 
-    "substitute": substitute,
-    "risk_level": risk_level,
-    "risk_score": risk_score,
-}
+    except Exception as e:
+        print("ERROR:", str(e))
+        raise HTTPException(500, f"Analysis failed: {str(e)}")
