@@ -21,7 +21,7 @@ export const register = async (req: Request, res: Response) => {
     const { newUser, accessToken, refreshToken } = await service.register(
       name,
       email,
-      password
+      password,
     );
 
     res.cookie("refreshToken", refreshToken, {
@@ -60,7 +60,7 @@ export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     const { user, accessToken, refreshToken } = await service.login(
       email,
-      password
+      password,
     );
 
     res.cookie("refreshToken", refreshToken, {
@@ -70,7 +70,6 @@ export const login = async (req: Request, res: Response) => {
       path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-
 
     res.status(201).json({
       success: true,
@@ -96,8 +95,8 @@ export const logout = async (req: Request, res: Response) => {
 
     res.clearCookie("refreshToken", {
       httpOnly: true,
-      sameSite: "none",
       secure: true,
+      sameSite: "none",
       path: "/",
     });
 
