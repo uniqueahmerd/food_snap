@@ -39,6 +39,8 @@ export interface NutritionAnalysis {
     message: string;
     condition?: HealthCondition;
   }[];
+  risk_level: 'low' | 'medium' | 'high';
+  risk_score: number;
   
   timestamp: string;
 }

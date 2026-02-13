@@ -1,6 +1,5 @@
 import axios from "axios";
 
-// Define the structure of the AI service response
 interface AIPrediction {
   label: string;
   confidence: number;
@@ -29,20 +28,20 @@ interface AIResponse {
 
 export const analyzeWithAI = async (imageBase64: string, conditions: string[]) => {
 
-  const response = await axios.post<AIResponse>(
+    const response = await axios.post<AIResponse>(
     process.env.AI_URL as string,
     { image: imageBase64, conditions },
     { timeout: 30000 } // 30-second timeout for the AI model
-  );
+    );
 
-  const aiResponse = response.data;
-  
+    const aiResponse = response.data;
+
   const advice = String(aiResponse.advice);
 
   // Handle explicit errors returned from the AI service
-  if (aiResponse.error) {
-    throw new Error(`AI Service Error: ${aiResponse.error}`);
-  }
+    if (aiResponse.error) {
+      throw new Error(`AI Service Error: ${aiResponse.error}`);
+    }
 
   // Validate the structure of the successful response
   if (

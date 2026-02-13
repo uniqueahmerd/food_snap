@@ -7,55 +7,55 @@ import { analyzeWithAI } from "../../services/ai.service.js";
 export class FoodService {
   private repo = new FoodRepositry();
 
-  async analyzeFood(image: string, healthCondition: string, userId: string) {
-    try {
-      if (!image) {
-        throw new Error("Image is required");
-      }
+async analyzeFood(image: string, healthCondition: string, userId: string) {
+  try {
+    if (!image) {
+      throw new Error("Image is required");
+    }
 
-      // 1️⃣ Call AI service
-      const aiResult = await analyzeWithAI(
+    // 1️⃣ Call AI service
+    const aiResult = await analyzeWithAI(
         image,
         healthCondition ? [healthCondition] : []
       );
 
       const { food, confidence, nutrients, advice, substitute, risk_level } = aiResult;
 
-      const scanId = uuidv4();
+    const scanId = uuidv4();
       const id = userId;
 
       const calories = nutrients.calories;
       const result = await this.repo.insertToFood(
-        scanId,
+      scanId,
         id,
         food,
         nutrients,
-        calories,
+      calories,
         confidence,
         advice,
         substitute,
-        healthCondition,
+      healthCondition,
         risk_level
-      );
-
+    );
+console.log("result from service", result);
       // Return response in format client expects
-      return {
-        result: {
+    return {
+      result: {
           food,
           confidence,
           nutrients,
           advice,
           substitute,
-          healthCondition,
+        healthCondition,
           riskLevel: risk_level,
-          calories,
-          scanId,
-        },
-      };
-    } catch (error: any) {
+        calories,
+        scanId,
+      },
+    };
+  } catch (error: any) {
       throw new Error(error.message);
-    }
   }
+}
 
   async getMealHistory() {
     const result = await this.repo.mealHistory();

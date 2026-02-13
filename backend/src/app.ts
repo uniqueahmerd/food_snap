@@ -15,8 +15,11 @@ const app = express();
 
 app.set("trust proxy", 1); // needed on Render / Heroku / cloud proxies
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "20mb" }));
+app.use(express.urlencoded({ limit: "20mb", extended: true }));
+
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(helmet());
 

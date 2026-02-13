@@ -70,12 +70,12 @@ const Camera = () => {
   }, [stopCamera]);
 
   const analyzeImage = async (imageData: string) => {
-    setAnalyzing(true);
+  setAnalyzing(true);
 
-    try {
+  try {
       // ✅ Remove base64 prefix
       const cleanBase64 = imageData.replace(/^data:image\/\w+;base64,/, "");
-      
+
       const response = await api.post("food/analyze",
         {
           image: cleanBase64 as string,
@@ -83,48 +83,54 @@ const Camera = () => {
         },
         { timeout: 80000 }
       );
-
-      const data = response.data;
-         
-      // 🔐 SAFETY FALLBACKS
+    
+    const data = response.data;
+    console.log("data",data);
+    
+    // 🔐 SAFETY FALLBACKS
       const dishName = data.food ?? "unknown_food";
       const confidence = data.confidence ?? 0;
       const nutrients = data.nutrients ?? {};
       const advice = data.advice;
       const substitute = data.substitute;
+      const scanId = data.result?.scanId;
+      const risk_level = data.result?.riskLevel;
+      const risk_score = data.result?.riskScore ?? "unknown";
 
-      setAnalysis({
-        id: `analysis_${Date.now()}`,
-        userId: "guest",
-        dishName,
-        confidence,
-        imageUrl: imageData,
-        nutrients,
-        healthFlags: [
-          {
-            level: confidence > 0.7 ? "green" : "yellow",
-            message:
-              dishName === "unknown_food"
-                ? "Food could not be confidently identified"
-                : `Identified as ${dishName} with ${(confidence * 100).toFixed(
-                    1
-                  )}% confidence`,
-          },
-        ],
-        advice,
-        substitute,
-        timestamp: new Date().toISOString(),
-      });
-    } catch (err: any) {
-      console.error("Analysis error:", err?.response?.data || err.message);
+   setAnalysis({
+     userId: "guest",
+     dishName,
+     confidence,
+     imageUrl: imageData,
+     nutrients,
+     healthFlags: [
+       {
+         level: confidence > 0.7 ? "green" : "yellow",
+         message:
+         dishName === "unknown_food"
+         ? "Food could not be confidently identified"
+         : `Identified as ${dishName} with ${(confidence * 100).toFixed(
+           1,
+          )}% confidence`,
+        },
+      ],
+      advice,
+      substitute,
+      id: scanId,
+      risk_level,
+      risk_score,
+     timestamp: new Date().toISOString(),
+   });
+  } catch (err: any) {
+    console.error("Analysis error:", err?.response?.data || err.message);
       // replace with toastify later
-      alert("Failed to analyze image");
-    } finally {
-      setAnalyzing(false);
-    }
-  };
+    alert("Failed to analyze image");
+  } finally {
+    setAnalyzing(false);
+  }
+};
 
-  
+
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
