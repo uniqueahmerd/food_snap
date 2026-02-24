@@ -19,7 +19,7 @@ export const analyze = async (req: Request, res: Response) => {
     res.json(response.result);
   } catch (error: any) {
     res.status(500).json({
-      message: "Food analysis failed",
+      message: "Food analysis failed please try again later",
       error: error.message,
     });
   }

@@ -1,4 +1,4 @@
-import {api} from "../lib/axios";
+import api from "../lib/axios";
 import { useAuth } from "../contexts/AuthContext";
 
 export const useRefreshToken = () => {
@@ -10,3 +10,4 @@ export const useRefreshToken = () => {
     return res.data.accessToken;
   };
 };
+  

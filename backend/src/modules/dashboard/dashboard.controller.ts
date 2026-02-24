@@ -10,6 +10,7 @@ export const summary = async (req: AuthRequest, res: Response) => {
   }
   const userId = req.user!.userId;
   const result = await repo.getSummary(userId);
+
   return res.json(result);
 };
 
@@ -29,6 +30,7 @@ export const weeklyTrend = async (req: AuthRequest, res: Response) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
   const result = await repo.getWeeklyTrend(userId);
+
   return res.json(result);
 };
 
@@ -38,6 +40,7 @@ export const nutritionBreakdown = async (req: AuthRequest, res: Response) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
   const result = await repo.getNutritionBreakdown(userId);
+
   return res.json(result);
 };
 
@@ -47,5 +50,6 @@ export const healthRisk = async (req: AuthRequest, res: Response) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
   const result = await repo.getHealthRisk(userId);
+
   return res.json(result);
 };
