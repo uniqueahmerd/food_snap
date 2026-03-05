@@ -1,35 +1,32 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { Loader2 } from 'lucide-react';
-// import { toast } from 'react-toastify';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { Loader2 } from "lucide-react";
+import { toast } from "react-toastify";
 // import { UseAuthStore } from '../store/AuthStore';
 // import Input from '../component/Input';
 // import Button from '../component/Button';
 // import Footer from '../component/Footer';
 
 const ResetPassword = () => {
-   
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [err, setErr] = useState("")
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [err, setErr] = useState("");
   const { loading, resetPassword, error } = useAuth();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handlePasswordReset = async (e: React.FormEvent) => {
-        e.preventDefault();
-         if (password !== confirmPassword){
-         setErr("Password does not match")
-         alert("Password does not match");
-         return
-         }
-
-         await resetPassword(password);
-         alert("You have successfully reset your password");
-         navigate("/login");
-         
-      
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      setErr("Password does not match");
+      toast.error("Password does not match");
+      return;
     }
+
+    await resetPassword(password);
+    toast.success("You have successfully reset your password");
+    navigate("/login");
+  };
 
   return (
     <div className="max-h-screen flex justify-center items-center m-auto">
@@ -39,28 +36,26 @@ const ResetPassword = () => {
         </h2>
 
         <form onSubmit={handlePasswordReset}>
-          
-            <input
-              type="password"
-              value={password}
-              onChange={(e: React.FormEvent) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 
+          <input
+            type="password"
+            value={password}
+            onChange={(e: React.FormEvent) => setPassword(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 
                      focus:ring-green-500 focus:border-transparent transition-colors mb-3"
-              placeholder="New password"
-              required
-            />
+            placeholder="New password"
+            required
+          />
 
-            <input
-              type="password"
-              placeholder="Confirm new password"
-              value={confirmPassword}
-              onChange={(e: React.FormEvent) =>
-                setConfirmPassword(e.target.value)
-              }
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 
+          <input
+            type="password"
+            placeholder="Confirm new password"
+            value={confirmPassword}
+            onChange={(e: React.FormEvent) =>
+              setConfirmPassword(e.target.value)
+            }
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 
                      focus:ring-green-500 focus:border-transparent transition-colors"
-            />
-        
+          />
 
           {error ? (
             <p className="text-red-500 text-sm mt-1.5">{error}</p>
@@ -90,6 +85,6 @@ const ResetPassword = () => {
       {/* <Footer text1={"Back to"} text2={"Login"} to={"/login"} /> */}
     </div>
   );
-}
+};
 
 export default ResetPassword;

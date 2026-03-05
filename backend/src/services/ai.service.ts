@@ -29,6 +29,7 @@ export const analyzeWithAI = async (
   imageBase64: string,
   conditions: string[],
 ) => {
+  
   const response = await axios.post<AIResponse>(
     process.env.AI_URL as string,
     { image: imageBase64, conditions },
@@ -42,8 +43,10 @@ export const analyzeWithAI = async (
   // Handle explicit errors returned from the AI service
   if (aiResponse.error) {
     console.log(aiResponse.error);
-    throw new Error(`AI Service Error: ${aiResponse.error}`);
   }
+  if (aiResponse.error) {
+    throw new Error(aiResponse.error);
+    }
 
   // Validate the structure of the successful response
   if (

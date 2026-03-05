@@ -41,6 +41,7 @@ import ExportButton from "../components/ExportButton";
 import TTSButton from "../components/TTSButton";
 import { useAuth } from "../contexts/AuthContext";
 import { useDashboardData } from "../contexts/DashboardContext";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Dashboard = () => {
   const { t } = useTranslation();
@@ -69,9 +70,6 @@ const Dashboard = () => {
     ? weeklyTrend
     : Object.values(weeklyTrend);
 }, [weeklyTrend]);
-
-  
-
   
   const caloriesTrendData = {
   labels: weeklyTrendArray.length
@@ -97,7 +95,6 @@ const Dashboard = () => {
     },
   ],
 };
-
 
   const nutrientBreakdownData = {
     labels: ["Protein", "Carbs", "Fats", "Fiber"],
@@ -210,262 +207,253 @@ const Dashboard = () => {
     return `${Math.floor(diffInHours / 24)}d ago`;
   };
 
-  if (loading) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-24 bg-gray-200 rounded-xl"></div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              {t("dashboard")}
-            </h1>
-            <p className="text-gray-600 mt-2">
-              Welcome back! {user?.name} Here's your nutritional overview.
-            </p>
-          </div>
-          <div className="flex items-center space-x-3">
-            <select
-              value={timeRange}
-              onChange={(e) => setTimeRange(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            >
-              <option value="7d">Last 7 days</option>
-              <option value="30d">Last 30 days</option>
-              <option value="90d">Last 3 months</option>
-            </select>
-            <ExportButton data={recentScans as any} type="dashboard" />
+    loading ? (
+      <LoadingSpinner />
+    ) : (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">
+                {t("dashboard")}
+              </h1>
+              <p className="text-gray-600 mt-2">
+                Welcome back! {user?.name} Here's your nutritional overview.
+              </p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <select
+                value={timeRange}
+                onChange={(e) => setTimeRange(e.target.value)}
+                className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              >
+                <option value="7d">Last 7 days</option>
+                <option value="30d">Last 30 days</option>
+                <option value="90d">Last 3 months</option>
+              </select>
+              <ExportButton data={recentScans as any} type="dashboard" />
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {stats.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <div
-              key={index}
-              className="bg-white rounded-xl shadow-lg border border-gray-100 p-6"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">
-                    {stat.label}
-                  </p>
-                  <div className="flex items-baseline space-x-2 mt-1">
-                    <p className="text-2xl font-bold text-gray-900">
-                      {stat.value}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {stats.map((stat, index) => {
+            const Icon = stat.icon;
+            return (
+              <div
+                key={index}
+                className="bg-white rounded-xl shadow-lg border border-gray-100 p-6"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">
+                      {stat.label}
                     </p>
-                    {stat.target && (
-                      <p className="text-sm text-gray-500">/ {stat.target}</p>
-                    )}
-                    {stat.trend && (
-                      <span className="text-sm text-green-600 font-medium">
-                        {stat.trend}
-                      </span>
-                    )}
+                    <div className="flex items-baseline space-x-2 mt-1">
+                      <p className="text-2xl font-bold text-gray-900">
+                        {stat.value}
+                      </p>
+                      {stat.target && (
+                        <p className="text-sm text-gray-500">/ {stat.target}</p>
+                      )}
+                      {stat.trend && (
+                        <span className="text-sm text-green-600 font-medium">
+                          {stat.trend}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className={`p-3 rounded-lg ${stat.bgColor}`}>
+                    <Icon className={`h-6 w-6 ${stat.color}`} />
                   </div>
                 </div>
-                <div className={`p-3 rounded-lg ${stat.bgColor}`}>
-                  <Icon className={`h-6 w-6 ${stat.color}`} />
-                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-        <div className="xl:col-span-2 bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">
-              {t("weeklyTrends")}
-            </h3>
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
-              <TrendingUp className="h-4 w-4" />
-              <span>
-                Daily average: { summary?.todaysCalories || 0} calories
-              </span>
-            </div>
-          </div>
-          <Line
-            data={caloriesTrendData}
-            options={{
-              responsive: true,
-              plugins: {
-                legend: {
-                  position: "top",
-                },
-              },
-              scales: {
-                y: {
-                  beginAtZero: false,
-                  min: 1500,
-                },
-              },
-            }}
-          />
+            );
+          })}
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-6">
-            {t("nutritionBreakdown")}
-          </h3>
-          <div className="h-64 flex items-center justify-center">
-            <Doughnut
-              data={nutrientBreakdownData}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          <div className="xl:col-span-2 bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {t("weeklyTrends")}
+              </h3>
+              <div className="flex items-center space-x-2 text-sm text-gray-500">
+                <TrendingUp className="h-4 w-4" />
+                <span>
+                  Daily average: { summary?.todaysCalories || 0} calories
+                </span>
+              </div>
+            </div>
+            <Line
+              data={caloriesTrendData}
               options={{
                 responsive: true,
-                maintainAspectRatio: false,
                 plugins: {
                   legend: {
-                    position: "bottom",
+                    position: "top",
+                  },
+                },
+                scales: {
+                  y: {
+                    beginAtZero: false,
+                    min: 1500,
                   },
                 },
               }}
             />
           </div>
-        </div>
 
-        <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 h-5/5">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">
-              {t("recentMeals")}
+          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">
+              {t("nutritionBreakdown")}
             </h3>
-            <Calendar className="h-5 w-5 text-gray-400" />
-          </div>
-
-          <div className="space-y-4">
-            {recentScans && recentScans.length ? (
-              recentScans.map((scan) => (
-                <div
-                  key={`${scan.food_name}-${scan.scanned_at}`}
-                  className="border border-gray-200 rounded-lg p-4"
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex-1">
-                      <h4 className="font-medium text-gray-900 text-sm">
-                        {scan.food_name}
-                      </h4>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <Clock className="h-3 w-3 text-gray-400" />
-                        <span className="text-xs text-gray-500">
-                          {getTimeAgo(scan.scanned_at)}
-                        </span>
-                        <span className="text-xs text-gray-400">•</span>
-                        <span className="text-xs font-medium text-gray-700">
-                          {scan.calories} cal
-                        </span>
-                      </div>
-                    </div>
-                    <TTSButton
-                      text={`${scan.food_name}, ${scan.calories} calories, risk ${scan.risk_level}`}
-                      size="sm"
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex gap-2 flex-col">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs text-center font-medium border w-28 ${getRiskColor(
-                          scan.risk_level
-                        )}`}
-                      >
-                        {scan.risk_level}
-                      </span>
-                        <div className="px-2 py-1 text-center rounded-full text-xs font-medium border text-green-600 bg-green-50">
-                        {scan.health_condition}
-                        </div>
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {scan.confidence
-                        ? `${Math.round(scan.confidence * 100)}%`
-                        : "--"}
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="text-center text-gray-500 py-4">
-                No recent meals logged yet.
-              </div>
-            )}
-          </div>
-
-          <button className="w-full mt-4 text-sm text-green-600 font-medium hover:text-green-700 transition-colors">
-            View All Meals
-          </button>
-        </div>
-
-        <div className="xl:col-span-2 bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Health Risk Analysis
-            </h3>
-            <div className="flex items-center space-x-2">
-              <AlertTriangle className="h-4 w-4 text-yellow-500" />
-              <span className="text-sm text-gray-600">Weekly breakdown</span>
+            <div className="h-64 flex items-center justify-center">
+              <Doughnut
+                data={nutrientBreakdownData}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: "bottom",
+                    },
+                  },
+                }}
+              />
             </div>
           </div>
-          <Bar
-              data={safeHealthRiskData}
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: { position: "top" },
-                },
-                scales: {
-                  x: { stacked: true },
-                  y: { stacked: true },
-                },
-              }}
-            />
 
+          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 h-5/5">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {t("recentMeals")}
+              </h3>
+              <Calendar className="h-5 w-5 text-gray-400" />
+            </div>
+
+            <div className="space-y-4">
+              {recentScans && recentScans.length ? (
+                recentScans.map((scan) => (
+                  <div
+                    key={`${scan.food_name}-${scan.scanned_at}`}
+                    className="border border-gray-200 rounded-lg p-4"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <h4 className="font-medium text-gray-900 text-sm">
+                          {scan.food_name}
+                        </h4>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <Clock className="h-3 w-3 text-gray-400" />
+                          <span className="text-xs text-gray-500">
+                            {getTimeAgo(scan.scanned_at)}
+                          </span>
+                          <span className="text-xs text-gray-400">•</span>
+                          <span className="text-xs font-medium text-gray-700">
+                            {scan.calories} cal
+                          </span>
+                        </div>
+                      </div>
+                      <TTSButton
+                        text={`${scan.food_name}, ${scan.calories} calories, risk ${scan.risk_level}`}
+                        size="sm"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex gap-2 flex-col">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs text-center font-medium border w-28 ${getRiskColor(
+                            scan.risk_level
+                          )}`}
+                        >
+                          {scan.risk_level}
+                        </span>
+                          <div className="px-2 py-1 text-center rounded-full text-xs font-medium border text-green-600 bg-green-50">
+                          {scan.health_condition}
+                          </div>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {scan.confidence
+                          ? `${Math.round(scan.confidence * 100)}%`
+                          : "--"}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center text-gray-500 py-4">
+                  No recent meals logged yet.
+                </div>
+              )}
+            </div>
+
+            <button className="w-full mt-4 text-sm text-green-600 font-medium hover:text-green-700 transition-colors">
+              View All Meals
+            </button>
+          </div>
+
+          <div className="xl:col-span-2 bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Health Risk Analysis
+              </h3>
+              <div className="flex items-center space-x-2">
+                <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                <span className="text-sm text-gray-600">Weekly breakdown</span>
+              </div>
+            </div>
+            <Bar
+                data={safeHealthRiskData}
+                options={{
+                  responsive: true,
+                  plugins: {
+                    legend: { position: "top" },
+                  },
+                  scales: {
+                    x: { stacked: true },
+                    y: { stacked: true },
+                  },
+                }}
+              />
+
+          </div>
+        </div>
+
+        <div className="mt-8 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl shadow-lg p-6 text-white">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h3 className="text-xl font-semibold mb-2">
+                Ready to log your next meal?
+              </h3>
+              <p className="text-green-100">
+                Capture a photo or chat with NutriBot for personalized advice.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+              <button
+                onClick={() => (window.location.href = "/camera")}
+                className="flex items-center justify-center space-x-2 bg-white text-green-600 px-6 py-2 rounded-lg font-medium hover:bg-green-50 transition-colors"
+              >
+                <Utensils className="h-4 w-4" />
+                <span>Open Camera</span>
+              </button>
+              <button
+                onClick={() => (window.location.href = "/nutribot")}
+                className="flex items-center justify-center space-x-2 border border-green-300 text-white px-6 py-2 rounded-lg font-medium hover:bg-green-500 transition-colors"
+              >
+                <span>Chat with NutriBot</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-
-      <div className="mt-8 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl shadow-lg p-6 text-white">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h3 className="text-xl font-semibold mb-2">
-              Ready to log your next meal?
-            </h3>
-            <p className="text-green-100">
-              Capture a photo or chat with NutriBot for personalized advice.
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-            <button
-              onClick={() => (window.location.href = "/camera")}
-              className="flex items-center justify-center space-x-2 bg-white text-green-600 px-6 py-2 rounded-lg font-medium hover:bg-green-50 transition-colors"
-            >
-              <Utensils className="h-4 w-4" />
-              <span>Open Camera</span>
-            </button>
-            <button
-              onClick={() => (window.location.href = "/nutribot")}
-              className="flex items-center justify-center space-x-2 border border-green-300 text-white px-6 py-2 rounded-lg font-medium hover:bg-green-500 transition-colors"
-            >
-              <span>Chat with NutriBot</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    )
   );
+ 
+  
 };
 
 export default Dashboard;

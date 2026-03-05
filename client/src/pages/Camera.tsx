@@ -8,6 +8,7 @@ import {
   AlertTriangle,
   X,
 } from "lucide-react";
+import { toast } from "react-toastify";
 import { NutritionAnalysis, HealthCondition } from "../types";
 import HealthConditionSelector from "../components/HealthConditionSelector";
 import TTSButton from "../components/TTSButton";
@@ -19,12 +20,12 @@ const Camera = () => {
   const [analyzing, setAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<NutritionAnalysis | null>(null);
   const [cameraActive, setCameraActive] = useState(false);
-  const [healthCondition, setHealthCondition] = useState<HealthCondition | null>();
-  
+  const [healthCondition, setHealthCondition] =
+    useState<HealthCondition | null>();
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
- 
 
   const startCamera = useCallback(async () => {
     try {
@@ -33,13 +34,13 @@ const Camera = () => {
       });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        videoRef.current.play();
         setCameraActive(true);
       }
     } catch (error) {
       console.error("Error accessing camera:", error);
-      // replace with toastify later
-      alert(
-        "Camera access denied. Please allow camera permissions and try again."
+      toast.error(
+        "Camera access denied. Please allow camera permissions and try again.",
       );
     }
   }, []);
@@ -62,7 +63,8 @@ const Camera = () => {
       const ctx = canvas.getContext("2d");
       if (ctx) {
         ctx.drawImage(video, 0, 0);
-        const imageData = canvas.toDataURL("image/jpeg");
+        // Compress image to 70% quality to reduce payload size
+        const imageData = canvas.toDataURL("image/jpeg", 0.7);
         setCapturedImage(imageData);
         stopCamera();
       }
@@ -70,24 +72,24 @@ const Camera = () => {
   }, [stopCamera]);
 
   const analyzeImage = async (imageData: string) => {
-  setAnalyzing(true);
+    setAnalyzing(true);
 
-  try {
+    try {
       // ✅ Remove base64 prefix
       const cleanBase64 = imageData.replace(/^data:image\/\w+;base64,/, "");
 
-      const response = await api.post("food/analyze",
+      const response = await api.post(
+        "food/analyze",
         {
           image: cleanBase64 as string,
           healthCondition,
         },
-        { timeout: 80000 }
+        { timeout: 80000 },
       );
-    
-    const data = response.data;
-    console.log("data",data);
-    
-    // 🔐 SAFETY FALLBACKS
+      toast.success("Analysis complete!");
+      const data = response.data;
+
+      // 🔐 SAFETY FALLBACKS
       const dishName = data.food ?? "unknown_food";
       const confidence = data.confidence ?? 0;
       const nutrients = data.nutrients ?? {};
@@ -97,64 +99,85 @@ const Camera = () => {
       const risk_level = data.result?.riskLevel;
       const risk_score = data.result?.riskScore ?? "unknown";
 
-   setAnalysis({
-     userId: "guest",
-     dishName,
-     confidence,
-     imageUrl: imageData,
-     nutrients,
-     healthFlags: [
-       {
-         level: confidence > 0.7 ? "green" : "yellow",
-         message:
-         dishName === "unknown_food"
-         ? "Food could not be confidently identified"
-         : `Identified as ${dishName} with ${(confidence * 100).toFixed(
-           1,
-          )}% confidence`,
-        },
-      ],
-      advice,
-      substitute,
-      id: scanId,
-      risk_level,
-      risk_score,
-     timestamp: new Date().toISOString(),
-   });
-  } catch (err: any) {
-    console.error("Analysis error:", err?.response?.data || err.message);
-      // replace with toastify later
-    alert("Failed to analyze image");
-  } finally {
-    setAnalyzing(false);
-  }
-};
+      setAnalysis({
+        userId: "guest",
+        dishName,
+        confidence,
+        imageUrl: imageData,
+        nutrients,
+        healthFlags: [
+          {
+            level: confidence > 0.7 ? "green" : "yellow",
+            message:
+              dishName === "unknown_food"
+                ? "Food could not be confidently identified"
+                : `Identified as ${dishName} with ${(confidence * 100).toFixed(
+                    1,
+                  )}% confidence`,
+          },
+        ],
+        advice,
+        substitute,
+        id: scanId,
+        risk_level,
+        risk_score,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || "Analysis failed");
+    } finally {
+      setAnalyzing(false);
+    }
+  };
 
+  const compressImage = (file: File, callback: (result: string) => void) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let { width, height } = img;
 
+        // Resize if image is too large (max 1920px)
+        const maxWidth = 1920;
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          // Compress to 70% quality
+          const compressedData = canvas.toDataURL("image/jpeg", 0.7);
+          callback(compressedData);
+        }
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
-        // 10MB limit
-        // replace with toastify later
-        alert("File size too large. Please choose a smaller image.");
+        // 10MB limit on original file
+        toast.error("File size too large. Please choose a smaller image.");
         return;
       }
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setCapturedImage(result);
-      };
-      reader.readAsDataURL(file);
+      compressImage(file, (compressedResult) => {
+        setCapturedImage(compressedResult);
+      });
     }
   };
 
- const handleHealthConditionChange = (condition: HealthCondition) => {
-  setHealthCondition(condition);
-};
-
+  const handleHealthConditionChange = (condition: HealthCondition) => {
+    setHealthCondition(condition);
+  };
 
   const resetCapture = () => {
     setCapturedImage(null);
@@ -210,6 +233,7 @@ const Camera = () => {
                 ref={videoRef}
                 autoPlay
                 playsInline
+                muted
                 className="w-full h-full object-cover"
               />
             )}
@@ -400,8 +424,8 @@ const Camera = () => {
                         {key === "calories"
                           ? "cal"
                           : key.includes("sodium") || key.includes("calcium")
-                          ? "mg"
-                          : "g"}
+                            ? "mg"
+                            : "g"}
                       </span>
                     </div>
                   ))}
@@ -417,7 +441,7 @@ const Camera = () => {
                   <TTSButton
                     text={`Health assessment for ${healthCondition?.replace(
                       "_",
-                      " "
+                      " ",
                     )} condition: ${analysis.healthFlags
                       .map((f) => f.message)
                       .join(". ")}`}
@@ -444,8 +468,8 @@ const Camera = () => {
                         flag.level === "green"
                           ? "bg-green-50 border border-green-200"
                           : flag.level === "yellow"
-                          ? "bg-yellow-50 border border-yellow-200"
-                          : "bg-red-50 border border-red-200"
+                            ? "bg-yellow-50 border border-yellow-200"
+                            : "bg-red-50 border border-red-200"
                       }`}
                     >
                       {flag.level === "green" && (
@@ -462,8 +486,8 @@ const Camera = () => {
                           flag.level === "green"
                             ? "text-green-800"
                             : flag.level === "yellow"
-                            ? "text-yellow-800"
-                            : "text-red-800"
+                              ? "text-yellow-800"
+                              : "text-red-800"
                         }`}
                       >
                         {flag.message}

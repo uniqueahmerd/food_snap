@@ -10,6 +10,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { I18nextProvider } from "react-i18next";
 import i18n from "./i18n/config";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -174,6 +176,7 @@ function App() {
           <LanguageProvider>
             <AuthProvider>
               <Router>
+                <ToastContainer />
                 <AppContent />
               </Router>
             </AuthProvider>

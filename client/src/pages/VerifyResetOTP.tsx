@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { Loader2 } from "lucide-react";
+import { toast } from "react-toastify";
 // import Button from "../component/Button";
 // import { UseAuthStore } from "../store/AuthStore";
 // import { toast } from "react-toastify";
@@ -15,7 +16,7 @@ const VerifyOtp = () => {
   const inputRef = useRef([]);
   const navigate = useNavigate();
 
-  const { error, loading, verifyEmail, verifyOtp  } = useAuth();
+  const { error, loading, verifyEmail, verifyOtp } = useAuth();
   // Local UI-only state: small validation error for client-side checks and resend loading
   const [validationError, setValidationError] = useState("");
   const [resendLoading, setResendLoading] = useState(false);
@@ -29,7 +30,7 @@ const VerifyOtp = () => {
     setValidationError(""); // Clear local validation error when user types
 
     if (value && index < OTP_LENGTH - 1) {
-      inputRef.current[index + 1].focus() ;
+      inputRef.current[index + 1].focus();
     }
 
     if (newOtp.every((digit) => digit !== "")) {
@@ -54,7 +55,7 @@ const VerifyOtp = () => {
     if (!/^[0-9]+$/.test(pasteData)) return; //only allow numbers
 
     const newOtp = Array(OTP_LENGTH).fill("");
-    pasteData.split("").forEach((char: string , i: number) => {
+    pasteData.split("").forEach((char: string, i: number) => {
       newOtp[i] = char;
     });
 
@@ -76,13 +77,13 @@ const VerifyOtp = () => {
       // Use store action which manages its own loading/error state
       const response = await verifyOtp(otpValue);
       setSuccess(true);
-      alert(response.message || "Email verified successfully!");
-      
+      toast.success(response.message || "Email verified successfully!");
+
       // Optionally navigate or show success UI here
       navigate("/reset-password"); // Redirect to Home page after successful verification
     } catch (err: any) {
       // Show error toast and set store error
-      alert(err.response?.data?.message || "Failed to verify email");
+      toast.error(err.response?.data?.message || "Failed to verify email");
       console.error("[EmailVerificationPage] Verification error:", err);
     }
   };
@@ -94,15 +95,14 @@ const VerifyOtp = () => {
     setResendLoading(true);
     try {
       // TODO: Replace with actual resend API call
-    //   await sendEmailVerificationCode();
+      //   await sendEmailVerificationCode();
       setResendTimer(20); // Start 30 second cooldown
-      alert("Verification code resent successfully!");
+      toast.success("Verification code resent successfully!");
     } catch (error) {
       console.error("Resend error:", error);
-      alert("Failed to resend verification code. Please try again.");
+      toast.error("Failed to resend verification code. Please try again.");
       setValidationError("Failed to resend code. Please try again.");
       console.log(error);
-      
     } finally {
       setResendLoading(false);
     }
@@ -181,7 +181,7 @@ const VerifyOtp = () => {
         )}
 
         <button
-        onClick={handleManualSubmit}
+          onClick={handleManualSubmit}
           className="bg-gradient-to-r from-green-600 to-emerald-600 w-full mt-3 mb-3 
                   text-white hover: text-lg duration-300 flex items-center justify-center 
                   disabled:opacity-50 disabled:cursor-not-allowed 
@@ -210,8 +210,8 @@ const VerifyOtp = () => {
             {resendLoading
               ? "Sending..."
               : resendTimer > 0
-              ? `Resend code in ${resendTimer}s`
-              : "Resend code"}
+                ? `Resend code in ${resendTimer}s`
+                : "Resend code"}
           </button>
         </div>
       </div>

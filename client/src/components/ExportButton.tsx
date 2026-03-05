@@ -2,6 +2,7 @@ import React, { useState } from "react";
 // import { useAuthStore } from "../store/AuthStore";
 import { useTranslation } from "react-i18next";
 import { Download, FileText, Table, Loader } from "lucide-react";
+import { toast } from "react-toastify";
 import { ExportData, NutritionAnalysis } from "../types";
 
 interface ExportButtonProps {
@@ -77,11 +78,11 @@ const ExportButton: React.FC<ExportButtonProps> = ({
           (scan) => `
         ${new Date(scan.timestamp).toLocaleDateString()} - ${scan.dishName}
         Calories: ${scan.nutrients.calories}, Confidence: ${Math.round(
-            scan.confidence * 100
-          )}%
+          scan.confidence * 100,
+        )}%
         Health Flags: ${scan.healthFlags.map((f) => f.message).join(", ")}
         Recommendations: ${scan.recommendations.join(", ")}
-      `
+      `,
         )
         .join("\n")}
     `;
@@ -169,7 +170,7 @@ const ExportButton: React.FC<ExportButtonProps> = ({
       }
     } catch (error) {
       console.error("Export failed:", error);
-      alert("Export failed. Please try again.");
+      toast.error("Export failed. Please try again.");
     } finally {
       setIsExporting(false);
     }
