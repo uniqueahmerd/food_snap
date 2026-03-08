@@ -26,7 +26,7 @@ export class FoodService {
       const id = userId;
 
       const calories = nutrients.calories;
-      
+
       // ✅ Only save to database if food is identified (not unknown)
       if (food && food.toLowerCase() !== "unknown") {
         await this.repo.insertToFood(
@@ -42,7 +42,7 @@ export class FoodService {
           risk_level,
         );
       }
-      
+
       // Return response in format client expects
       return {
         result: {
