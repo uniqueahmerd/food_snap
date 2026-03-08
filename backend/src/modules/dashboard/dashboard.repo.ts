@@ -26,7 +26,7 @@ export class DashboardRepositry {
 
   async getRecentScans(userId: string) {
     const query =
-      "SELECT dish_name AS food_name, confidence, (nutrients->>'calories')::INT AS calories, health_condition, risk_level, scanned_at FROM food_scan WHERE user_id = $1 ORDER BY scanned_at DESC LIMIT 5;";
+      "SELECT dish_name AS food_name, confidence, (nutrients->>'calories')::INT AS calories, health_condition, risk_level, scanned_at FROM food_scan WHERE user_id = $1 AND LOWER(dish_name) NOT IN ('unknown', 'unknown_food') ORDER BY scanned_at DESC LIMIT 5;";
     const result = await pool.query(query, [userId]);
     return result.rows;
   }
