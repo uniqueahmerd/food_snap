@@ -5,7 +5,8 @@ export class DashboardRepositry {
     const todayCaloriesQuery =
       "SELECT COALESCE(SUM((nutrients->>'calories')::INT), 0) AS total_calories FROM food_scan WHERE user_id = $1 AND DATE(scanned_at) = CURRENT_DATE";
 
-    const healthConditionQuery = "SELECT health_condition FROM food_scan WHERE user_id = $1"
+    const healthConditionQuery =
+      "SELECT health_condition FROM food_scan WHERE user_id = $1";
 
     const mealsCountQuery =
       "SELECT COUNT(*)::INT AS count FROM food_scan WHERE user_id = $1";

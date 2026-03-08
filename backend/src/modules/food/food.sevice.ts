@@ -66,10 +66,11 @@ export class FoodService {
   async getMealHistory() {
     const result = await this.repo.mealHistory();
     // Filter out unknown foods from the results
-    return result.filter(item => 
-      item.dish_name && 
-      item.dish_name.toLowerCase() !== "unknown" &&
-      item.dish_name.toLowerCase() !== "unknown_food"
+    return result.filter(
+      (item) =>
+        item.dish_name &&
+        item.dish_name.toLowerCase() !== "unknown" &&
+        item.dish_name.toLowerCase() !== "unknown_food",
     );
   }
 }
