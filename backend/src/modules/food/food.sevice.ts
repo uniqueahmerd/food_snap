@@ -26,18 +26,23 @@ export class FoodService {
       const id = userId;
 
       const calories = nutrients.calories;
-      const result = await this.repo.insertToFood(
-        scanId,
-        id,
-        food,
-        nutrients,
-        calories,
-        confidence,
-        advice,
-        substitute,
-        healthCondition,
-        risk_level,
-      );
+      
+      // ✅ Only save to database if food is identified (not unknown)
+      if (food && food.toLowerCase() !== "unknown") {
+        await this.repo.insertToFood(
+          scanId,
+          id,
+          food,
+          nutrients,
+          calories,
+          confidence,
+          advice,
+          substitute,
+          healthCondition,
+          risk_level,
+        );
+      }
+      
       // Return response in format client expects
       return {
         result: {

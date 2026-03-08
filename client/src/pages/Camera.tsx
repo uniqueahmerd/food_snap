@@ -55,8 +55,15 @@ const Camera = () => {
 
   const capturePhoto = useCallback(() => {
     if (videoRef.current && canvasRef.current) {
-      const canvas = canvasRef.current;
       const video = videoRef.current;
+      const canvas = canvasRef.current;
+
+      // Ensure video has loaded and has dimensions
+      if (video.videoWidth === 0 || video.videoHeight === 0) {
+        toast.error("Camera not fully loaded. Please try again.");
+        return;
+      }
+
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
 
@@ -65,8 +72,12 @@ const Camera = () => {
         ctx.drawImage(video, 0, 0);
         // Compress image to 70% quality to reduce payload size
         const imageData = canvas.toDataURL("image/jpeg", 0.7);
-        setCapturedImage(imageData);
-        stopCamera();
+        if (imageData) {
+          setCapturedImage(imageData);
+          stopCamera();
+        } else {
+          toast.error("Failed to capture image. Please try again.");
+        }
       }
     }
   }, [stopCamera]);
